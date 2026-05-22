@@ -4,14 +4,10 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  HeadContent,
-  Scripts,
 } from "@tanstack/react-router";
 import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ConvexReactClient } from "convex/react";
-
-import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
   return (
@@ -74,58 +70,11 @@ export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   convex: ConvexReactClient;
 }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Madina Central SDA Book Club — Admin" },
-      { name: "description", content: "Admin panel for the Madina Central SDA Church Book Club." },
-      { name: "theme-color", content: "#1e2a44" },
-      { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-title", content: "SDA Book Club" },
-      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
-      { property: "og:title", content: "Madina Central SDA Book Club — Admin" },
-      { property: "og:description", content: "Track books, kids, and returns with an elegant church library admin." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "icon", type: "image/png", href: "/favicon.png" },
-      { rel: "apple-touch-icon", href: "/favicon.png" },
-      { rel: "manifest", href: "/manifest.webmanifest" },
-    ],
-  }),
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
 
-function RootShell({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}
-
 function RootComponent() {
-  const { queryClient, convex } = Route.useRouteContext();
-
-  return (
-    <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string}>
-      <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-        <QueryClientProvider client={queryClient}>
-          <Outlet />
-        </QueryClientProvider>
-      </ConvexProviderWithClerk>
-    </ClerkProvider>
-  );
+  return <Outlet />;
 }
