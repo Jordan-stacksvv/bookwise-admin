@@ -1,0 +1,12 @@
+{
+  "name": "Madina Central SDA Book Club",
+  "short_name": "SDA Book Club",
+  "description": "Admin panel for the Madina Central SDA Church Book Club.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e2a44",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
