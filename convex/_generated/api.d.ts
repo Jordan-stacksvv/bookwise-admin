@@ -11,6 +11,7 @@
 import type * as assignments from "../assignments.js";
 import type * as books from "../books.js";
 import type * as kids from "../kids.js";
+import type * as reviews from "../reviews.js";
 import type * as seed from "../seed.js";
 import type * as settings from "../settings.js";
 import type * as teachers from "../teachers.js";
@@ -26,6 +27,7 @@ declare const fullApi: ApiFromModules<{
   assignments: typeof assignments;
   books: typeof books;
   kids: typeof kids;
+  reviews: typeof reviews;
   seed: typeof seed;
   settings: typeof settings;
   teachers: typeof teachers;

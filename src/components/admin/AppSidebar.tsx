@@ -1,5 +1,5 @@
-import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, Users, CalendarDays, LogOut, GraduationCap, Menu } from "lucide-react";
+﻿import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { LayoutDashboard, BookOpen, Users, CalendarDays, LogOut, GraduationCap, Menu, Building2 } from "lucide-react";
 import { useClerk } from "@clerk/clerk-react";
 import logo from "@/assets/logo.png";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -9,6 +9,7 @@ import { useState } from "react";
 const items = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/books", label: "Books", icon: BookOpen },
+  { to: "/departments", label: "Departments", icon: Building2 },
   { to: "/kids", label: "Kids", icon: Users },
   { to: "/teachers", label: "Teachers", icon: GraduationCap },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
@@ -97,3 +98,4 @@ export function MobileTopBar() {
     </div>
   );
 }
+

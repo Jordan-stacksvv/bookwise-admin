@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { useStore, useApi, isOverdue, isActive } from "@/lib/mock-store";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { BookOpen, Users, AlertTriangle, BookMarked, Plus, CalendarDays, GraduationCap, Search, RotateCcw } from "lucide-react";
@@ -53,6 +53,43 @@ function Dashboard() {
     () => s.assignments.filter((a) => !a.returnedAt).sort((a, b) => +new Date(a.dueDate) - +new Date(b.dueDate)).slice(0, 6),
     [s.assignments],
   );
+
+  const topBooks = useMemo(() => {
+    const counts = new Map<string, number>();
+    s.assignments.forEach((a) => counts.set(a.bookId, (counts.get(a.bookId) || 0) + 1));
+    return Array.from(counts.entries())
+      .map(([bookId, count]) => ({ book: s.books.find((b) => b.id === bookId), count }))
+      .filter((x) => x.book)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+  }, [s.assignments, s.books]);
+
+  const topKids = useMemo(() => {
+    const counts = new Map<string, number>();
+    s.assignments.forEach((a) => counts.set(a.kidId, (counts.get(a.kidId) || 0) + 1));
+    return Array.from(counts.entries())
+      .map(([kidId, count]) => ({ kid: s.kids.find((k) => k.id === kidId), count }))
+      .filter((x) => x.kid)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+  }, [s.assignments, s.kids]);
+
+  const topBooksByDept = useMemo(() => {
+    const depts = Array.from(new Set(s.kids.map((k) => k.department)));
+    return depts
+      .map((dept) => {
+        const kidIds = new Set(s.kids.filter((k) => k.department === dept).map((k) => k.id));
+        const counts = new Map<string, number>();
+        s.assignments.filter((a) => kidIds.has(a.kidId)).forEach((a) => counts.set(a.bookId, (counts.get(a.bookId) || 0) + 1));
+        const top = Array.from(counts.entries())
+          .map(([bookId, count]) => ({ book: s.books.find((b) => b.id === bookId), count }))
+          .filter((x) => x.book)
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 5);
+        return { dept, top };
+      })
+      .filter((d) => d.top.length > 0);
+  }, [s.assignments, s.books, s.kids]);
 
   const ql = q.trim().toLowerCase();
   const searchResults = ql
@@ -198,6 +235,70 @@ function Dashboard() {
           </div>
         </div>
       </div>
+
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 mt-6">
+        <div className="bg-card rounded-xl border p-4 sm:p-6" style={{ boxShadow: "var(--shadow-soft)" }}>
+          <h3 className="font-display text-lg font-semibold mb-4">Most Borrowed Books</h3>
+          {topBooks.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4">No borrowing activity yet.</p>
+          ) : (
+            <div className="divide-y">
+              {topBooks.map(({ book, count }, i) => (
+                <div key={book!.id} className="py-2.5 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-xs font-semibold text-muted-foreground w-4">{i + 1}</span>
+                    <p className="text-sm font-medium truncate">{book!.title}</p>
+                  </div>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-accent/20 text-accent-foreground shrink-0">{count}×</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="bg-card rounded-xl border p-4 sm:p-6" style={{ boxShadow: "var(--shadow-soft)" }}>
+          <h3 className="font-display text-lg font-semibold mb-4">Top Readers</h3>
+          {topKids.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4">No borrowing activity yet.</p>
+          ) : (
+            <div className="divide-y">
+              {topKids.map(({ kid, count }, i) => (
+                <div key={kid!.id} className="py-2.5 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-xs font-semibold text-muted-foreground w-4">{i + 1}</span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{kid!.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{kid!.department}</p>
+                    </div>
+                  </div>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-accent/20 text-accent-foreground shrink-0">{count} book{count === 1 ? "" : "s"}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {topBooksByDept.length > 0 && (
+        <div className="bg-card rounded-xl border p-4 sm:p-6 mt-6" style={{ boxShadow: "var(--shadow-soft)" }}>
+          <h3 className="font-display text-lg font-semibold mb-4">Top Books by Department</h3>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {topBooksByDept.map(({ dept, top }) => (
+              <div key={dept}>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">{dept}</p>
+                <div className="space-y-1.5">
+                  {top.map(({ book, count }, i) => (
+                    <div key={book!.id} className="flex items-center justify-between gap-2 text-sm">
+                      <span className="truncate"><span className="text-muted-foreground mr-1.5">{i + 1}.</span>{book!.title}</span>
+                      <span className="text-xs text-muted-foreground shrink-0">{count}×</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -233,3 +334,4 @@ function SearchGroup({
     </div>
   );
 }
+

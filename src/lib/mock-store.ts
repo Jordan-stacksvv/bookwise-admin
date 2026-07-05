@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Convex-backed data layer.
  * Exports the same types and hook shape as before so existing pages work unchanged.
  * Auth is now handled entirely by Clerk — no login/logout/signup here.
@@ -37,6 +37,8 @@ export type Kid = {
   age: number;
   department: string;
   birthdate?: string;
+  parentName?: string;
+  parentPhone?: string;
 };
 
 export type Teacher = {
@@ -62,11 +64,24 @@ export type Assignment = {
   completed?: boolean;
 };
 
+export type BookReview = {
+  _id: Id<"bookReviews">;
+  id: string;
+  assignmentId: string;
+  kidId: string;
+  bookId: string;
+  chapterRange?: string;
+  summary: string;
+  createdAt: string;
+  sentToParentAt?: string;
+};
+
 type StoreState = {
   books: Book[];
   kids: Kid[];
   teachers: Teacher[];
   assignments: Assignment[];
+  reviews: BookReview[];
   categories: string[];
   departments: string[];
   ageRanges: string[];
@@ -79,6 +94,7 @@ export function useStore(): StoreState {
   const rawKids = useQuery(api.kids.list) ?? [];
   const rawTeachers = useQuery(api.teachers.list) ?? [];
   const rawAssignments = useQuery(api.assignments.list) ?? [];
+  const rawReviews = useQuery(api.reviews.list) ?? [];
   const categories = useQuery(api.settings.get, { key: "categories" }) ?? [];
   const departments = useQuery(api.settings.get, { key: "departments" }) ?? [];
   const ageRanges = useQuery(api.settings.get, { key: "ageRanges" }) ?? [];
@@ -95,7 +111,9 @@ export function useStore(): StoreState {
     teacherId: a.teacherId,
   }));
 
-  return { books, kids, teachers, assignments, categories, departments, ageRanges };
+  const reviews: BookReview[] = rawReviews.map((r: any) => ({ ...r, id: r._id }));
+
+  return { books, kids, teachers, assignments, reviews, categories, departments, ageRanges };
 }
 
 // ─── Mutations shim — same api.* surface ─────────────────────────────────────
@@ -123,6 +141,9 @@ function useConvexMutations() {
     deleteDepartment: useMutation(api.settings.remove),
     addAgeRange: useMutation(api.settings.add),
     deleteAgeRange: useMutation(api.settings.remove),
+    addReview: useMutation(api.reviews.add),
+    markReviewSent: useMutation(api.reviews.markSent),
+    deleteReview: useMutation(api.reviews.remove),
   };
 }
 
@@ -186,6 +207,19 @@ export function useApi() {
 
     updateAssignment: (id: string, updates: Partial<Pick<Assignment, "currentPage" | "completed" | "returnedAt">>) =>
       m.updateAssignment({ id: id as Id<"assignments">, ...updates }),
+
+    addReview: (r: { assignmentId: string; kidId: string; bookId: string; chapterRange?: string; summary: string }) =>
+      m.addReview({
+        assignmentId: r.assignmentId as Id<"assignments">,
+        kidId: r.kidId as Id<"kids">,
+        bookId: r.bookId as Id<"books">,
+        chapterRange: r.chapterRange,
+        summary: r.summary,
+      }),
+
+    markReviewSent: (id: string) => m.markReviewSent({ id: id as Id<"bookReviews"> }),
+
+    deleteReview: (id: string) => m.deleteReview({ id: id as Id<"bookReviews"> }),
   };
 }
 
@@ -213,3 +247,6 @@ export function currentAge(kid: Pick<Kid, "age" | "birthdate">): number {
   if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--;
   return Math.max(0, age);
 }
+
+
+

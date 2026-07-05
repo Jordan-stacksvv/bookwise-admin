@@ -1,4 +1,4 @@
-import { mutation, query } from "./_generated/server";
+﻿import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 export const list = query({
@@ -12,6 +12,8 @@ export const add = mutation({
     age: v.number(),
     department: v.string(),
     birthdate: v.optional(v.string()),
+    parentName: v.optional(v.string()),
+    parentPhone: v.optional(v.string()),
   },
   handler: async (ctx, args) => ctx.db.insert("kids", args),
 });
@@ -23,6 +25,8 @@ export const edit = mutation({
     age: v.optional(v.number()),
     department: v.optional(v.string()),
     birthdate: v.optional(v.string()),
+    parentName: v.optional(v.string()),
+    parentPhone: v.optional(v.string()),
   },
   handler: async (ctx, { id, ...updates }) => ctx.db.patch(id, updates),
 });

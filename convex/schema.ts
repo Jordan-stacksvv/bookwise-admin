@@ -1,4 +1,4 @@
-import { defineSchema, defineTable } from "convex/server";
+﻿import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
@@ -23,6 +23,8 @@ export default defineSchema({
     age: v.number(),
     department: v.string(),
     birthdate: v.optional(v.string()),
+    parentName: v.optional(v.string()),
+    parentPhone: v.optional(v.string()),
   }),
 
   teachers: defineTable({
@@ -50,4 +52,18 @@ export default defineSchema({
     key: v.string(),
     values: v.array(v.string()),
   }).index("by_key", ["key"]),
+
+  bookReviews: defineTable({
+    assignmentId: v.id("assignments"),
+    kidId: v.id("kids"),
+    bookId: v.id("books"),
+    chapterRange: v.optional(v.string()),
+    summary: v.string(),
+    createdAt: v.string(),
+    sentToParentAt: v.optional(v.string()),
+  })
+    .index("by_kid", ["kidId"])
+    .index("by_assignment", ["assignmentId"]),
 });
+
+

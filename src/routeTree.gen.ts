@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTeachersRouteImport } from './routes/_authenticated/teachers'
 import { Route as AuthenticatedKidsRouteImport } from './routes/_authenticated/kids'
+import { Route as AuthenticatedDepartmentsRouteImport } from './routes/_authenticated/departments'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 import { Route as AuthenticatedBooksRouteImport } from './routes/_authenticated/books'
@@ -42,6 +43,12 @@ const AuthenticatedKidsRoute = AuthenticatedKidsRouteImport.update({
   path: '/kids',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedDepartmentsRoute =
+  AuthenticatedDepartmentsRouteImport.update({
+    id: '/departments',
+    path: '/departments',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/books': typeof AuthenticatedBooksRoute
   '/calendar': typeof AuthenticatedCalendarRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/departments': typeof AuthenticatedDepartmentsRoute
   '/kids': typeof AuthenticatedKidsRoute
   '/teachers': typeof AuthenticatedTeachersRoute
 }
@@ -73,6 +81,7 @@ export interface FileRoutesByTo {
   '/books': typeof AuthenticatedBooksRoute
   '/calendar': typeof AuthenticatedCalendarRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/departments': typeof AuthenticatedDepartmentsRoute
   '/kids': typeof AuthenticatedKidsRoute
   '/teachers': typeof AuthenticatedTeachersRoute
 }
@@ -84,6 +93,7 @@ export interface FileRoutesById {
   '/_authenticated/books': typeof AuthenticatedBooksRoute
   '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/departments': typeof AuthenticatedDepartmentsRoute
   '/_authenticated/kids': typeof AuthenticatedKidsRoute
   '/_authenticated/teachers': typeof AuthenticatedTeachersRoute
 }
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
     | '/books'
     | '/calendar'
     | '/dashboard'
+    | '/departments'
     | '/kids'
     | '/teachers'
   fileRoutesByTo: FileRoutesByTo
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '/books'
     | '/calendar'
     | '/dashboard'
+    | '/departments'
     | '/kids'
     | '/teachers'
   id:
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
     | '/_authenticated/books'
     | '/_authenticated/calendar'
     | '/_authenticated/dashboard'
+    | '/_authenticated/departments'
     | '/_authenticated/kids'
     | '/_authenticated/teachers'
   fileRoutesById: FileRoutesById
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedKidsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/departments': {
+      id: '/_authenticated/departments'
+      path: '/departments'
+      fullPath: '/departments'
+      preLoaderRoute: typeof AuthenticatedDepartmentsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -189,6 +209,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedBooksRoute: typeof AuthenticatedBooksRoute
   AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDepartmentsRoute: typeof AuthenticatedDepartmentsRoute
   AuthenticatedKidsRoute: typeof AuthenticatedKidsRoute
   AuthenticatedTeachersRoute: typeof AuthenticatedTeachersRoute
 }
@@ -197,6 +218,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedBooksRoute: AuthenticatedBooksRoute,
   AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDepartmentsRoute: AuthenticatedDepartmentsRoute,
   AuthenticatedKidsRoute: AuthenticatedKidsRoute,
   AuthenticatedTeachersRoute: AuthenticatedTeachersRoute,
 }

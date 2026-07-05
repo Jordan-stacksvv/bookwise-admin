@@ -1,4 +1,4 @@
-import { createFileRoute, useSearch } from "@tanstack/react-router";
+﻿import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useStore, useApi, availableCopies, isActive, type Book } from "@/lib/mock-store";
 import type { Kid } from "@/lib/mock-store";
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/books")({
   validateSearch: (s: Record<string, unknown>) => ({ focus: typeof s.focus === "string" ? s.focus : undefined }),
 });
 
-type BookForm = Omit<Book, "id" | "issues">;
+type BookForm = Omit<Book, "_id" | "id" | "issues">;
 const empty: BookForm = { title: "", author: "", category: "", ageRange: "", department: "", coverUrl: "", copies: 1 };
 
 function BooksPage() {
@@ -111,9 +111,6 @@ function BooksPage() {
             <Button variant="outline" size="sm" onClick={() => { setManageOpen("category"); setNewValue(""); }}>
               <Tag className="h-4 w-4 mr-1.5" /> Categories
             </Button>
-            <Button variant="outline" size="sm" onClick={() => { setManageOpen("department"); setNewValue(""); }}>
-              <Building2 className="h-4 w-4 mr-1.5" /> Departments
-            </Button>
             <Button size="sm" onClick={openAdd}><Plus className="h-4 w-4 mr-1.5" /> Add Book</Button>
           </>
         }
@@ -144,7 +141,7 @@ function BooksPage() {
 
       <div className="bg-card border rounded-xl overflow-hidden" style={{ boxShadow: "var(--shadow-soft)" }}>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[640px]">
+          <table className="w-full text-sm min-w-160">
             <thead className="bg-muted/50 text-left">
               <tr>
                 <th className="px-3 sm:px-4 py-3 font-medium w-14">Cover</th>
@@ -263,7 +260,7 @@ function BooksPage() {
                     {editingBook.issues.map((i) => (
                       <div key={i.id} className="flex items-start gap-2 bg-destructive/5 border border-destructive/20 rounded-md px-2.5 py-1.5 text-xs">
                         <div className="flex-1 min-w-0">
-                          <p className="text-foreground whitespace-pre-wrap break-words">{i.note}</p>
+                          <p className="text-foreground whitespace-pre-wrap wrap-break-word">{i.note}</p>
                           <p className="text-muted-foreground mt-0.5">
                             {new Date(i.reportedAt).toLocaleDateString()}
                           </p>
@@ -504,3 +501,6 @@ function KidPicker({
     </div>
   );
 }
+
+
+
