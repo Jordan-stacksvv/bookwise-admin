@@ -101,7 +101,18 @@ export default defineSchema({
     updatedAt: v.string(),
   }),
 
-  // Admins approved inside the app (Admin > Settings > Admins). Identified by the Clerk user id.
+  // Everyone who has signed in (for the admin People list). role = what they picked on the login page.
+  members: defineTable({
+    userId: v.string(),
+    name: v.optional(v.string()),
+    email: v.optional(v.string()),
+    imageUrl: v.optional(v.string()),
+    role: v.optional(v.union(v.literal("teacher"), v.literal("admin"))),
+    createdAt: v.string(),
+    lastSeenAt: v.string(),
+  }).index("by_user", ["userId"]),
+
+  // Admins approved inside the app (Admin > Settings > People). Identified by the Clerk user id.
   admins: defineTable({
     userId: v.string(),
     name: v.optional(v.string()),

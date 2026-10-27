@@ -1,6 +1,6 @@
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { Link } from "@tanstack/react-router";
-import { Camera, Download, LogOut, ShieldCheck } from "lucide-react";
+import { Camera, Download, LogOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -65,18 +65,13 @@ export function ProfileCard({ app }: { app: "teacher" | "admin" }) {
     }
   };
 
+  // Teachers do not see a link to the admin app; admins reach it from the login page ("Admin").
   const switchLink =
-    app === "teacher" ? (
-      isAdmin && (
-        <Button asChild variant="outline" className="justify-start">
-          <a href="/admin"><ShieldCheck className="h-4 w-4 mr-2" /> Open the admin app</a>
-        </Button>
-      )
-    ) : (
+    app === "admin" ? (
       <Button asChild variant="outline" className="justify-start">
         <a href="/dashboard">Open the teacher app</a>
       </Button>
-    );
+    ) : null;
 
   return (
     <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1fr_320px]">

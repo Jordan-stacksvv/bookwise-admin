@@ -6,7 +6,6 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useInstallPrompt } from "@/hooks/use-install-prompt";
-import { AdminLink } from "@/components/admin/AdminLink";
 
 const items = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -72,7 +71,6 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
         {showIosHint && (
           <p className="px-3 py-2 text-xs opacity-70">To install: tap Share, then Add to Home Screen.</p>
         )}
-        <AdminLink className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-sidebar-accent transition" />
         <button
           onClick={handleSignOut}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-sidebar-accent transition"

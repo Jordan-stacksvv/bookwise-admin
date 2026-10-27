@@ -1,10 +1,11 @@
 import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { useMutation, useQuery } from "convex/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "../../convex/_generated/api";
 import { AdminShell } from "@/components/admin-app/AdminShell";
 import { AppFooter } from "@/components/admin/AppFooter";
+import { MemberSync } from "@/components/admin/MemberSync";
 import { Button } from "@/components/ui/button";
 import { useAdmin } from "@/hooks/use-admin";
 import { friendlyError } from "@/lib/friendly-error";
@@ -41,29 +42,37 @@ function AdminLayout() {
   const admin = useAdmin();
   const navigate = useNavigate();
 
-  // One login for everyone: signed-out visitors go to the normal login page and come back here.
+  // Signed-out visitors use the normal login page (as an admin) and come back here.
   useEffect(() => {
-    if (admin.status === "signed-out") navigate({ to: "/login", search: { redirect: "/admin" }, replace: true });
+    if (admin.status === "signed-out") navigate({ to: "/login", search: { redirect: "/admin", as: "admin" }, replace: true });
   }, [admin.status, navigate]);
 
   if (admin.status === "loading" || admin.status === "signed-out") return <Spinner />;
-  if (admin.status === "not-admin") return <NoAccess userId={admin.userId} />;
+  if (admin.status === "not-admin") {
+    return (
+      <>
+        <MemberSync />
+        <NoAccess />
+      </>
+    );
+  }
 
   return (
     <AdminShell email={admin.email}>
+      <MemberSync />
       <Outlet />
     </AdminShell>
   );
 }
 
-function NoAccess({ userId }: { userId: string | null }) {
+function NoAccess() {
   const { user } = useUser();
   const { signOut } = useClerk();
-  const request = useQuery(api.admins.myRequest);
+  const request = useQuery(api.admins.myRequest); // undefined = loading, null = none yet
   const ask = useMutation(api.admins.requestAccess);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
+  const auto = useRef(false);
   const email = user?.primaryEmailAddress?.emailAddress;
 
   const send = async () => {
@@ -78,7 +87,20 @@ function NoAccess({ userId }: { userId: string | null }) {
     }
   };
 
-  const cmd = `npx convex env set ADMIN_USER_IDS "${userId ?? ""}"`;
+  // They picked "Admin" on the login page: send the request for them, once.
+  useEffect(() => {
+    if (request !== null || auto.current || !user) return;
+    let picked = "";
+    try {
+      picked = localStorage.getItem("bw-role") ?? "";
+    } catch {
+      /* private mode */
+    }
+    if (picked === "admin") {
+      auto.current = true;
+      send();
+    }
+  }, [request, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Centered>
@@ -92,40 +114,17 @@ function NoAccess({ userId }: { userId: string | null }) {
 
         {request ? (
           <p className="text-sm rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-center">
-            Request sent. An admin will approve it from Settings. Check back later.
+            Request sent. An admin will approve it. Check back soon.
           </p>
         ) : (
-          <Button className="w-full" disabled={busy} onClick={send}>{busy ? "Sending..." : "Request admin access"}</Button>
+          <Button className="w-full" disabled={busy || request === undefined} onClick={send}>{busy ? "Sending..." : "Request admin access"}</Button>
         )}
         {error && <p className="text-sm text-destructive text-center">{error}</p>}
 
         <div className="flex flex-col sm:flex-row gap-2 justify-center">
-          <Button asChild variant="outline"><a href="/dashboard">Teacher app</a></Button>
+          <Button asChild variant="outline"><a href="/dashboard">Go to teacher app</a></Button>
           <Button variant="ghost" onClick={async () => { await signOut(); window.location.href = "/login"; }}>Sign out</Button>
         </div>
-
-        <details className="text-xs text-muted-foreground border-t pt-3">
-          <summary className="cursor-pointer">I am setting up the very first admin</summary>
-          <p className="mt-2">Run this once in the project folder, then reload this page:</p>
-          <code className="block mt-2 p-2 rounded bg-muted text-foreground break-all select-all">{cmd}</code>
-          <Button
-            size="sm"
-            variant="outline"
-            className="mt-2"
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(cmd);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-              } catch {
-                /* select-all above works as a fallback */
-              }
-            }}
-          >
-            {copied ? "Copied" : "Copy command"}
-          </Button>
-          <p className="mt-2">Add <code>--prod</code> for the production deployment.</p>
-        </details>
       </div>
       <AppFooter />
     </Centered>

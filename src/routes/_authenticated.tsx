@@ -5,6 +5,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { AppSidebar, MobileTopBar } from "@/components/admin/AppSidebar";
 import { AppFooter } from "@/components/admin/AppFooter";
 import { LoanSendPrompt } from "@/components/admin/LoanSendPrompt";
+import { MemberSync } from "@/components/admin/MemberSync";
 
 export const Route = createFileRoute("/_authenticated")({
   component: Layout,
@@ -41,6 +42,7 @@ function Layout() {
         <AppFooter />
       </main>
       <LoanSendPrompt />
+      <MemberSync />
     </div>
   );
 }
