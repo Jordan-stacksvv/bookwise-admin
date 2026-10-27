@@ -16,6 +16,7 @@ import type * as kids from "../kids.js";
 import type * as loanHelpers from "../loanHelpers.js";
 import type * as loanPolicy from "../loanPolicy.js";
 import type * as loans from "../loans.js";
+import type * as policy from "../policy.js";
 import type * as readingSets from "../readingSets.js";
 import type * as reviews from "../reviews.js";
 import type * as seed from "../seed.js";
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   loanHelpers: typeof loanHelpers;
   loanPolicy: typeof loanPolicy;
   loans: typeof loans;
+  policy: typeof policy;
   readingSets: typeof readingSets;
   reviews: typeof reviews;
   seed: typeof seed;
