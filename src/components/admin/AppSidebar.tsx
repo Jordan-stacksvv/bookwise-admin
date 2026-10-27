@@ -1,10 +1,11 @@
 ﻿import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, Users, CalendarDays, LogOut, GraduationCap, Menu, Building2 } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, CalendarDays, LogOut, GraduationCap, Menu, Building2, Download } from "lucide-react";
 import { useClerk } from "@clerk/clerk-react";
 import logo from "@/assets/logo.png";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useInstallPrompt } from "@/hooks/use-install-prompt";
 
 const items = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -19,6 +20,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const navigate = useNavigate();
   const { signOut } = useClerk();
+  const { canInstall, showIosHint, install } = useInstallPrompt();
 
   const handleSignOut = async () => {
     await signOut();
@@ -56,6 +58,17 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
         })}
       </nav>
       <div className="p-3 border-t border-sidebar-border">
+        {canInstall && (
+          <button
+            onClick={install}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-sidebar-accent transition"
+          >
+            <Download className="h-4 w-4" /> Install app
+          </button>
+        )}
+        {showIosHint && (
+          <p className="px-3 py-2 text-xs opacity-70">To install: tap Share, then Add to Home Screen.</p>
+        )}
         <button
           onClick={handleSignOut}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-sidebar-accent transition"

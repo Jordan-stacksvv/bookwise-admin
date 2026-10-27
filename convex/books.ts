@@ -1,5 +1,5 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 
 export const list = query({
   args: {},
@@ -22,9 +22,16 @@ export const add = mutation({
     department: v.string(),
     coverUrl: v.optional(v.string()),
     copies: v.number(),
+    code: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("books", args);
+    const { code: rawCode, ...rest } = args;
+    const code = rawCode?.trim();
+    if (code) {
+      const dup = await ctx.db.query("books").withIndex("by_code", (q) => q.eq("code", code)).first();
+      if (dup) throw new ConvexError(`Book code "${code}" is already used by "${dup.title}".`);
+    }
+    return await ctx.db.insert("books", code ? { ...rest, code } : rest);
   },
 });
 
@@ -38,8 +45,17 @@ export const edit = mutation({
     department: v.optional(v.string()),
     coverUrl: v.optional(v.string()),
     copies: v.optional(v.number()),
+    code: v.optional(v.string()),
   },
   handler: async (ctx, { id, ...updates }) => {
+    if (updates.code !== undefined) {
+      const code = updates.code.trim();
+      if (code) {
+        const dup = await ctx.db.query("books").withIndex("by_code", (q) => q.eq("code", code)).first();
+        if (dup && dup._id !== id) throw new ConvexError(`Book code "${code}" is already used by "${dup.title}".`);
+      }
+      updates.code = code || undefined; // empty string clears the code
+    }
     await ctx.db.patch(id, updates);
   },
 });

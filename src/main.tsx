@@ -7,6 +7,7 @@ import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ConvexReactClient } from "convex/react";
 import { getRouter } from "./router";
 import "./styles.css";
+import "./hooks/use-install-prompt";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 const queryClient = new QueryClient();
@@ -30,3 +31,10 @@ createRoot(rootEl).render(
     <App />
   </StrictMode>
 );
+
+// Offline-capable app shell + installability. Production builds only, so dev hot-reload isn't cached.
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });
+}

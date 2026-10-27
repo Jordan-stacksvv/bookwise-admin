@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
+import { MIN_BORROW_AGE, ageOn } from "./policy";
 
 export const list = query({
   args: {},
@@ -14,6 +15,11 @@ export const assign = mutation({
     dueDate: v.string(),
   },
   handler: async (ctx, args) => {
+    const kid = await ctx.db.get(args.kidId);
+    if (!kid) throw new ConvexError("Kid not found.");
+    if (ageOn(kid) < MIN_BORROW_AGE) {
+      throw new ConvexError(`${kid.name} is under ${MIN_BORROW_AGE} and cannot borrow books yet.`);
+    }
     return ctx.db.insert("assignments", {
       ...args,
       assignedAt: new Date().toISOString(),

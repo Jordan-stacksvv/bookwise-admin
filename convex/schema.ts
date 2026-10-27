@@ -10,7 +10,8 @@ export default defineSchema({
     department: v.string(),
     coverUrl: v.optional(v.string()),
     copies: v.number(),
-  }),
+    code: v.optional(v.string()),
+  }).index("by_code", ["code"]),
 
   bookIssues: defineTable({
     bookId: v.id("books"),

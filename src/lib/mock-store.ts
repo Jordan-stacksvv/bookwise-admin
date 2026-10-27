@@ -6,6 +6,9 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
+import { MIN_BORROW_AGE } from "../../convex/policy";
+
+export { MIN_BORROW_AGE };
 
 // ─── Re-exported types (same shape as before) ────────────────────────────────
 
@@ -20,6 +23,7 @@ export type BookIssue = {
 export type Book = {
   _id: Id<"books">;
   id: string;
+  code?: string;
   title: string;
   author: string;
   category: string;
@@ -246,6 +250,11 @@ export function currentAge(kid: Pick<Kid, "age" | "birthdate">): number {
   const m = now.getMonth() - b.getMonth();
   if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--;
   return Math.max(0, age);
+}
+
+/** Kids under MIN_BORROW_AGE (10) cannot borrow. */
+export function canBorrow(kid: Pick<Kid, "age" | "birthdate">): boolean {
+  return currentAge(kid) >= MIN_BORROW_AGE;
 }
 
 

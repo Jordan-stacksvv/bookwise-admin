@@ -1,6 +1,7 @@
 ﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { useStore, useApi, isOverdue, isActive } from "@/lib/mock-store";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { BirthdayCard } from "@/components/admin/BirthdayCard";
 import { BookOpen, Users, AlertTriangle, BookMarked, Plus, CalendarDays, GraduationCap, Search, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -94,7 +95,7 @@ function Dashboard() {
   const ql = q.trim().toLowerCase();
   const searchResults = ql
     ? {
-        books: s.books.filter((b) => b.title.toLowerCase().includes(ql) || b.author.toLowerCase().includes(ql)).slice(0, 4),
+        books: s.books.filter((b) => b.title.toLowerCase().includes(ql) || b.author.toLowerCase().includes(ql) || (b.code ?? "").toLowerCase().includes(ql)).slice(0, 4),
         kids: s.kids.filter((k) => k.name.toLowerCase().includes(ql) || k.department.toLowerCase().includes(ql)).slice(0, 4),
         teachers: s.teachers.filter((t) => t.name.toLowerCase().includes(ql) || t.department.toLowerCase().includes(ql)).slice(0, 4),
       }
@@ -142,7 +143,7 @@ function Dashboard() {
           <div className="border-t mt-2 pt-3 grid sm:grid-cols-3 gap-4 text-sm">
             <SearchGroup
               title="Books"
-              items={searchResults.books.map((b) => ({ id: b.id, primary: b.title, secondary: b.author, to: "/books" as const, focus: b.id }))}
+              items={searchResults.books.map((b) => ({ id: b.id, primary: b.title, secondary: [b.code, b.author].filter(Boolean).join(" · "), to: "/books" as const, focus: b.id }))}
             />
             <SearchGroup
               title="Kids"
@@ -178,6 +179,8 @@ function Dashboard() {
           </Link>
         ))}
       </div>
+
+      <BirthdayCard kids={s.kids} />
 
       <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
         <div className="lg:col-span-2 bg-card rounded-xl border p-4 sm:p-6" style={{ boxShadow: "var(--shadow-soft)" }}>

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useStore, useApi, isOverdue, type Assignment } from "@/lib/mock-store";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { birthdaysInMonth } from "@/lib/birthdays";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
@@ -18,6 +19,7 @@ import {
   CheckCircle2,
   Clock,
   AlertTriangle,
+  Cake,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/calendar")({
@@ -38,6 +40,7 @@ function CalendarPage() {
   const [ageFilter, setAgeFilter] = useState("all");
   const [teacherFilter, setTeacherFilter] = useState("all");
   const [openDay, setOpenDay] = useState<{ y: number; m: number; d: number } | null>(null);
+  const [showBirthdays, setShowBirthdays] = useState(true);
 
   const today = new Date();
 
@@ -71,6 +74,8 @@ function CalendarPage() {
     },
     [s.assignments, filter, deptFilter, ageFilter, teacherFilter, s.kids],
   );
+
+  const bdays = useMemo(() => birthdaysInMonth(s.kids, view.y, view.m), [s.kids, view.y, view.m]);
 
   const first = new Date(view.y, view.m, 1);
   const startDow = first.getDay();
@@ -122,6 +127,7 @@ function CalendarPage() {
   };
 
   const dayItems = openDay ? dueOn(openDay.y, openDay.m, openDay.d) : [];
+  const dayBirthdays = openDay && showBirthdays ? bdays.filter((x) => x.day === openDay.d) : [];
   const dayLabel = openDay
     ? new Date(openDay.y, openDay.m, openDay.d).toLocaleDateString(undefined, {
         weekday: "long",
@@ -190,6 +196,18 @@ function CalendarPage() {
             {s.teachers.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
           </SelectContent>
         </Select>
+        <button
+          type="button"
+          onClick={() => setShowBirthdays((v) => !v)}
+          className={`flex items-center gap-2 px-3 h-9 rounded-md text-sm border transition ${
+            showBirthdays
+              ? "bg-pink-500/15 border-pink-500/40 text-pink-700 dark:text-pink-300"
+              : "bg-card border-border text-muted-foreground"
+          }`}
+        >
+          <Cake className="h-3.5 w-3.5" /> Birthdays
+          <span className="text-xs opacity-80">{bdays.length}</span>
+        </button>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -237,6 +255,8 @@ function CalendarPage() {
             {cells.map((d, i) => {
               if (d === null) return <div key={i} />;
               const due = dueOn(view.y, view.m, d);
+              const bd = showBirthdays ? bdays.filter((x) => x.day === d) : [];
+              const maxDue = bd.length > 0 ? 1 : 2;
               const isToday =
                 today.getFullYear() === view.y &&
                 today.getMonth() === view.m &&
@@ -248,18 +268,24 @@ function CalendarPage() {
               return (
                 <button
                   key={i}
-                  onClick={() => due.length > 0 && setOpenDay({ y: view.y, m: view.m, d })}
+                  onClick={() => (due.length > 0 || bd.length > 0) && setOpenDay({ y: view.y, m: view.m, d })}
                   className={`aspect-square rounded-lg p-1.5 border text-left text-xs flex flex-col transition ${
                     isToday
                       ? "border-accent bg-accent/10"
                       : "border-transparent hover:border-border"
-                  } ${due.length > 0 ? "cursor-pointer hover:bg-muted/40" : "cursor-default"}`}
+                  } ${due.length > 0 || bd.length > 0 ? "cursor-pointer hover:bg-muted/40" : "cursor-default"}`}
                 >
                   <span className={`font-medium ${isToday ? "text-accent-foreground" : ""}`}>
                     {d}
                   </span>
                   <div className="mt-auto space-y-0.5 w-full">
-                    {due.slice(0, 2).map((a) => {
+                    {bd.length > 0 && (
+                      <div className="truncate text-[10px] px-1 py-0.5 rounded bg-pink-500/15 text-pink-700 dark:text-pink-300 flex items-center gap-0.5">
+                        <Cake className="h-2.5 w-2.5 shrink-0" />
+                        <span className="truncate">{bd[0].kid.name.split(" ")[0]}{bd.length > 1 ? ` +${bd.length - 1}` : ""}</span>
+                      </div>
+                    )}
+                    {due.slice(0, maxDue).map((a) => {
                       const book = s.books.find((b) => b.id === a.bookId);
                       const returned = !!a.returnedAt;
                       return (
@@ -277,8 +303,8 @@ function CalendarPage() {
                         </div>
                       );
                     })}
-                    {due.length > 2 && (
-                      <div className="text-[10px] text-muted-foreground">+{due.length - 2}</div>
+                    {due.length > maxDue && (
+                      <div className="text-[10px] text-muted-foreground">+{due.length - maxDue}</div>
                     )}
                   </div>
                 </button>
@@ -345,8 +371,19 @@ function CalendarPage() {
           <DialogHeader>
             <DialogTitle>{dayLabel}</DialogTitle>
           </DialogHeader>
+          {dayBirthdays.length > 0 && (
+            <div className="space-y-2">
+              {dayBirthdays.map(({ kid, turning }) => (
+                <div key={kid.id} className="flex items-center gap-2 rounded-lg border border-pink-500/30 bg-pink-500/10 px-3 py-2 text-sm">
+                  <Cake className="h-4 w-4 text-pink-500 shrink-0" />
+                  <span className="font-medium">{kid.name}</span>
+                  <span className="text-muted-foreground">{turning > 0 ? `turns ${turning}` : "birthday"} · {kid.department}</span>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="divide-y">
-            {dayItems.length === 0 && (
+            {dayItems.length === 0 && dayBirthdays.length === 0 && (
               <p className="text-sm text-muted-foreground py-4">Nothing due on this day.</p>
             )}
             {dayItems.map((a) => {

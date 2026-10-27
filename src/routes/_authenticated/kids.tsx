@@ -1,6 +1,6 @@
 ﻿import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useStore, useApi, isActive, isOverdue, currentAge, type Kid } from "@/lib/mock-store";
+import { useStore, useApi, isActive, isOverdue, currentAge, canBorrow, MIN_BORROW_AGE, type Kid } from "@/lib/mock-store";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Plus, Trash2, BookPlus, ChevronDown, RotateCcw, CheckCircle2, Circle, MessageCircle, BookOpenCheck } from "lucide-react";
 import { Combobox } from "@/components/admin/Combobox";
+import { friendlyError } from "@/lib/friendly-error";
 
 export const Route = createFileRoute("/_authenticated/kids")({
   component: KidsPage,
@@ -182,7 +183,13 @@ function KidsPage() {
                   <div className="flex justify-between items-center mb-3">
                     <h4 className="font-medium">Borrowing history</h4>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => { setAssignKidId(k.id); setAssignBook(""); setAssignDue(""); }}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={!canBorrow(k)}
+                        title={!canBorrow(k) ? `Kids under ${MIN_BORROW_AGE} can't borrow books` : undefined}
+                        onClick={() => { setAssignKidId(k.id); setAssignBook(""); setAssignDue(""); }}
+                      >
                         <BookPlus className="h-4 w-4 mr-1.5" /> Assign
                       </Button>
                       <Button
@@ -456,10 +463,13 @@ function KidsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAssignKidId(null)}>Cancel</Button>
-            <Button disabled={!assignBook || !assignDue} onClick={() => {
-              if (assignKidId) {
-                api.assign(assignBook, assignKidId, new Date(assignDue).toISOString());
+            <Button disabled={!assignBook || !assignDue} onClick={async () => {
+              if (!assignKidId) return;
+              try {
+                await api.assign(assignBook, assignKidId, new Date(assignDue).toISOString());
                 setAssignKidId(null);
+              } catch (e) {
+                alert(friendlyError(e));
               }
             }}>Assign</Button>
           </DialogFooter>

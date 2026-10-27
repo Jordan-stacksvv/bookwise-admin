@@ -1,6 +1,6 @@
 ﻿import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useStore, useApi, availableCopies, isActive, type Book } from "@/lib/mock-store";
+import { useStore, useApi, availableCopies, isActive, canBorrow, currentAge, MIN_BORROW_AGE, type Book } from "@/lib/mock-store";
 import type { Kid } from "@/lib/mock-store";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pencil, Trash2, Plus, BookPlus, Search, BookOpen, Upload, Tag, Building2, AlertCircle, X, Check } from "lucide-react";
 import { Combobox } from "@/components/admin/Combobox";
+import { friendlyError } from "@/lib/friendly-error";
 
 export const Route = createFileRoute("/_authenticated/books")({
   component: BooksPage,
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/books")({
 });
 
 type BookForm = Omit<Book, "_id" | "id" | "issues">;
-const empty: BookForm = { title: "", author: "", category: "", ageRange: "", department: "", coverUrl: "", copies: 1 };
+const empty: BookForm = { code: "", title: "", author: "", category: "", ageRange: "", department: "", coverUrl: "", copies: 1 };
 
 function BooksPage() {
   const s = useStore();
@@ -56,7 +57,7 @@ function BooksPage() {
 
   const openEdit = (b: Book) => {
     setEditing(b);
-    setForm({ title: b.title, author: b.author, category: b.category, ageRange: b.ageRange, department: b.department, coverUrl: b.coverUrl ?? "", copies: b.copies });
+    setForm({ code: b.code ?? "", title: b.title, author: b.author, category: b.category, ageRange: b.ageRange, department: b.department, coverUrl: b.coverUrl ?? "", copies: b.copies });
     setIssueDraft("");
     setOpen(true);
   };
@@ -75,7 +76,7 @@ function BooksPage() {
     return (
       (cat === "all" || b.category === cat) &&
       (dept === "all" || b.department === dept) &&
-      (b.title.toLowerCase().includes(m) || b.author.toLowerCase().includes(m))
+      (b.title.toLowerCase().includes(m) || b.author.toLowerCase().includes(m) || (b.code ?? "").toLowerCase().includes(m))
     );
   });
 
@@ -92,11 +93,15 @@ function BooksPage() {
     reader.onload = () => setForm((f) => ({ ...f, coverUrl: String(reader.result) }));
     reader.readAsDataURL(file);
   };
-  const submit = () => {
+  const submit = async () => {
     if (!form.title.trim()) return;
-    if (editing) api.editBook(editing.id, form);
-    else api.addBook(form);
-    setOpen(false);
+    try {
+      if (editing) await api.editBook(editing.id, form);
+      else await api.addBook(form);
+      setOpen(false);
+    } catch (e) {
+      alert(friendlyError(e));
+    }
   };
 
   const editingBook = editing ? s.books.find((b) => b.id === editing.id) : null;
@@ -119,7 +124,7 @@ function BooksPage() {
       <div className="bg-card border rounded-xl p-3 sm:p-4 mb-4 flex flex-col sm:flex-row gap-3" style={{ boxShadow: "var(--shadow-soft)" }}>
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search title or author…" value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="pl-9" placeholder="Search title, author or code…" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <div className="grid grid-cols-2 sm:flex gap-2">
           <Select value={cat} onValueChange={setCat}>
@@ -171,7 +176,10 @@ function BooksPage() {
                       <div className="flex items-center gap-2">
                         <div className="min-w-0">
                           <p className="font-medium truncate">{b.title}</p>
-                          <p className="text-xs text-muted-foreground truncate">{b.author}</p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {b.code && <span className="font-mono">{b.code} · </span>}
+                            {b.author}
+                          </p>
                         </div>
                         {b.issues.length > 0 && (
                           <AlertCircle className="h-3.5 w-3.5 text-destructive shrink-0" aria-label={`${b.issues.length} issue(s)`} />
@@ -233,6 +241,7 @@ function BooksPage() {
                 </div>
               </div>
             </div>
+            <Field label="Book code / ID" value={form.code ?? ""} onChange={(v) => setForm({ ...form, code: v })} placeholder="e.g. BK-0001" />
             <Field label="Title" value={form.title} onChange={(v) => setForm({ ...form, title: v })} />
             <Field label="Author" value={form.author} onChange={(v) => setForm({ ...form, author: v })} />
             <div className="grid grid-cols-2 gap-3">
@@ -341,11 +350,14 @@ function BooksPage() {
             <Button variant="outline" onClick={() => setAssignFor(null)}>Cancel</Button>
             <Button
               disabled={!assignKid || !assignDue}
-              onClick={() => {
-                if (assignFor) {
-                  api.assign(assignFor.id, assignKid, new Date(assignDue).toISOString(), assignTeacher !== "none" ? assignTeacher : undefined);
+              onClick={async () => {
+                if (!assignFor) return;
+                try {
+                  await api.assign(assignFor.id, assignKid, new Date(assignDue).toISOString(), assignTeacher !== "none" ? assignTeacher : undefined);
                   setAssignFor(null);
                   setAssignTeacher("none");
+                } catch (e) {
+                  alert(friendlyError(e));
                 }
               }}
             >Assign</Button>
@@ -486,12 +498,16 @@ function KidPicker({
             <button
               key={k.id}
               type="button"
+              disabled={!canBorrow(k)}
               onClick={() => { onChange(k.id); onQueryChange(""); }}
-              className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-left hover:bg-muted/40"
+              className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-left hover:bg-muted/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
             >
               <span className="min-w-0">
                 <span className="font-medium block truncate">{k.name}</span>
-                <span className="text-xs text-muted-foreground">{k.department} · age {k.age}</span>
+                <span className="text-xs text-muted-foreground">
+                  {k.department} · age {currentAge(k)}
+                  {!canBorrow(k) && <span className="text-destructive"> · under {MIN_BORROW_AGE}, can't borrow</span>}
+                </span>
               </span>
               {value === k.id && <Check className="h-4 w-4 text-primary shrink-0" />}
             </button>
