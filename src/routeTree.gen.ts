@@ -17,11 +17,13 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ApproveTokenRouteImport } from './routes/approve.$token'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminReadingRouteImport } from './routes/admin/reading'
+import { Route as AdminProfileRouteImport } from './routes/admin/profile'
 import { Route as AdminFeesRouteImport } from './routes/admin/fees'
 import { Route as AdminBirthdaysRouteImport } from './routes/admin/birthdays'
 import { Route as AdminApprovalsRouteImport } from './routes/admin/approvals'
 import { Route as AdminAnnouncementsRouteImport } from './routes/admin/announcements'
 import { Route as AuthenticatedTeachersRouteImport } from './routes/_authenticated/teachers'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedKidsRouteImport } from './routes/_authenticated/kids'
 import { Route as AuthenticatedDepartmentsRouteImport } from './routes/_authenticated/departments'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -68,6 +70,11 @@ const AdminReadingRoute = AdminReadingRouteImport.update({
   path: '/reading',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminProfileRoute = AdminProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFeesRoute = AdminFeesRouteImport.update({
   id: '/fees',
   path: '/fees',
@@ -91,6 +98,11 @@ const AdminAnnouncementsRoute = AdminAnnouncementsRouteImport.update({
 const AuthenticatedTeachersRoute = AuthenticatedTeachersRouteImport.update({
   id: '/teachers',
   path: '/teachers',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedKidsRoute = AuthenticatedKidsRouteImport.update({
@@ -135,11 +147,13 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/departments': typeof AuthenticatedDepartmentsRoute
   '/kids': typeof AuthenticatedKidsRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/teachers': typeof AuthenticatedTeachersRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/birthdays': typeof AdminBirthdaysRoute
   '/admin/fees': typeof AdminFeesRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/reading': typeof AdminReadingRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/approve/$token': typeof ApproveTokenRoute
@@ -154,11 +168,13 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/departments': typeof AuthenticatedDepartmentsRoute
   '/kids': typeof AuthenticatedKidsRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/teachers': typeof AuthenticatedTeachersRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/birthdays': typeof AdminBirthdaysRoute
   '/admin/fees': typeof AdminFeesRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/reading': typeof AdminReadingRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/approve/$token': typeof ApproveTokenRoute
@@ -176,11 +192,13 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/departments': typeof AuthenticatedDepartmentsRoute
   '/_authenticated/kids': typeof AuthenticatedKidsRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/teachers': typeof AuthenticatedTeachersRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/birthdays': typeof AdminBirthdaysRoute
   '/admin/fees': typeof AdminFeesRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/reading': typeof AdminReadingRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/approve/$token': typeof ApproveTokenRoute
@@ -198,11 +216,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/departments'
     | '/kids'
+    | '/profile'
     | '/teachers'
     | '/admin/announcements'
     | '/admin/approvals'
     | '/admin/birthdays'
     | '/admin/fees'
+    | '/admin/profile'
     | '/admin/reading'
     | '/admin/settings'
     | '/approve/$token'
@@ -217,11 +237,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/departments'
     | '/kids'
+    | '/profile'
     | '/teachers'
     | '/admin/announcements'
     | '/admin/approvals'
     | '/admin/birthdays'
     | '/admin/fees'
+    | '/admin/profile'
     | '/admin/reading'
     | '/admin/settings'
     | '/approve/$token'
@@ -238,11 +260,13 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/departments'
     | '/_authenticated/kids'
+    | '/_authenticated/profile'
     | '/_authenticated/teachers'
     | '/admin/announcements'
     | '/admin/approvals'
     | '/admin/birthdays'
     | '/admin/fees'
+    | '/admin/profile'
     | '/admin/reading'
     | '/admin/settings'
     | '/approve/$token'
@@ -315,6 +339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminReadingRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/profile': {
+      id: '/admin/profile'
+      path: '/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AdminProfileRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/fees': {
       id: '/admin/fees'
       path: '/fees'
@@ -348,6 +379,13 @@ declare module '@tanstack/react-router' {
       path: '/teachers'
       fullPath: '/teachers'
       preLoaderRoute: typeof AuthenticatedTeachersRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/kids': {
@@ -402,6 +440,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDepartmentsRoute: typeof AuthenticatedDepartmentsRoute
   AuthenticatedKidsRoute: typeof AuthenticatedKidsRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedTeachersRoute: typeof AuthenticatedTeachersRoute
 }
 
@@ -412,6 +451,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDepartmentsRoute: AuthenticatedDepartmentsRoute,
   AuthenticatedKidsRoute: AuthenticatedKidsRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedTeachersRoute: AuthenticatedTeachersRoute,
 }
 
@@ -424,6 +464,7 @@ interface AdminRouteChildren {
   AdminApprovalsRoute: typeof AdminApprovalsRoute
   AdminBirthdaysRoute: typeof AdminBirthdaysRoute
   AdminFeesRoute: typeof AdminFeesRoute
+  AdminProfileRoute: typeof AdminProfileRoute
   AdminReadingRoute: typeof AdminReadingRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -434,6 +475,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminApprovalsRoute: AdminApprovalsRoute,
   AdminBirthdaysRoute: AdminBirthdaysRoute,
   AdminFeesRoute: AdminFeesRoute,
+  AdminProfileRoute: AdminProfileRoute,
   AdminReadingRoute: AdminReadingRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminIndexRoute: AdminIndexRoute,

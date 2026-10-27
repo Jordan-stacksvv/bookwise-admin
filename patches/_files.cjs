@@ -29,6 +29,20 @@ function createOne(rel) {
   create(rel, fs.readFileSync(p, "utf8"));
 }
 
+/** Replace an existing file with patches/<dir>/<rel> (keeps the project's line endings and BOM). */
+function overwriteFrom(dir, rel) {
+  const p = path.join(__dirname, dir, rel);
+  if (!fs.existsSync(p)) throw new Error(`Missing patch file: patches/${dir}/${rel}`);
+  create(rel, fs.readFileSync(p, "utf8"), { overwrite: true });
+}
+
+/** Create a new file from patches/<dir>/<rel>. */
+function createFrom(dir, rel) {
+  const p = path.join(__dirname, dir, rel);
+  if (!fs.existsSync(p)) throw new Error(`Missing patch file: patches/${dir}/${rel}`);
+  create(rel, fs.readFileSync(p, "utf8"));
+}
+
 const L = (...lines) => lines.join("\n");
 
-module.exports = { createTree, createOne, L, FILES };
+module.exports = { createTree, createOne, overwriteFrom, createFrom, L, FILES };

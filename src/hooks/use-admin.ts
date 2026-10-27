@@ -4,8 +4,8 @@ import { api } from "../../convex/_generated/api";
 export type AdminState =
   | { status: "loading" }
   | { status: "signed-out" }
-  | { status: "not-admin"; email: string | null }
-  | { status: "admin"; email: string | null; name: string | null };
+  | { status: "not-admin"; userId: string | null; email: string | null; name: string | null }
+  | { status: "admin"; userId: string | null; email: string | null; name: string | null };
 
 /** Combines Convex auth with the server-side admin check (convex/adminAuth.ts). */
 export function useAdmin(): AdminState {
@@ -14,6 +14,6 @@ export function useAdmin(): AdminState {
   if (isLoading) return { status: "loading" };
   if (!isAuthenticated) return { status: "signed-out" };
   if (me === undefined) return { status: "loading" };
-  if (!me.isAdmin) return { status: "not-admin", email: me.email };
-  return { status: "admin", email: me.email, name: me.name };
+  const base = { userId: me.userId, email: me.email, name: me.name };
+  return me.isAdmin ? { status: "admin", ...base } : { status: "not-admin", ...base };
 }

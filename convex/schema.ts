@@ -101,6 +101,22 @@ export default defineSchema({
     updatedAt: v.string(),
   }),
 
+  // Admins approved inside the app (Admin > Settings > Admins). Identified by the Clerk user id.
+  admins: defineTable({
+    userId: v.string(),
+    name: v.optional(v.string()),
+    email: v.optional(v.string()),
+    addedBy: v.string(),
+    createdAt: v.string(),
+  }).index("by_user", ["userId"]),
+
+  adminRequests: defineTable({
+    userId: v.string(),
+    name: v.optional(v.string()),
+    email: v.optional(v.string()),
+    createdAt: v.string(),
+  }).index("by_user", ["userId"]),
+
   announcements: defineTable({
     title: v.string(),
     body: v.string(),

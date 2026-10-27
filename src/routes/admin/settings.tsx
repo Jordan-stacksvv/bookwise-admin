@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
+import { AdminsPanel } from "@/components/admin-app/AdminsPanel";
 import { Panel, fmtDateTime } from "@/components/admin-app/ui";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,7 @@ function SettingsPage() {
         <PolicyPanel />
         <PricesPanel />
         <AppPanel />
-        <AccessPanel />
+        <AdminsPanel />
       </div>
     </>
   );

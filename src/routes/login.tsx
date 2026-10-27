@@ -4,12 +4,17 @@ import { useState } from "react";
 import logo from "@/assets/logo.png";
 import { AppFooter } from "@/components/admin/AppFooter";
 
+// Only allow same-site paths like /admin (never //evil.com or full URLs).
+const safeRedirect = (v: unknown) => (typeof v === "string" && /^\/(?![/\\])/.test(v) ? v : undefined);
+
 export const Route = createFileRoute("/login")({
+  validateSearch: (s: Record<string, unknown>): { redirect?: string } => ({ redirect: safeRedirect(s.redirect) }),
   component: LoginPage,
 });
 
 function LoginPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const after = Route.useSearch().redirect ?? "/dashboard";
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
@@ -56,7 +61,7 @@ function LoginPage() {
         {mode === "signin" ? (
           <SignIn
             routing="hash"
-            afterSignInUrl="/dashboard"
+            forceRedirectUrl={after}
             appearance={{
               elements: {
                 rootBox: "w-full max-w-md",
@@ -67,7 +72,7 @@ function LoginPage() {
         ) : (
           <SignUp
             routing="hash"
-            afterSignUpUrl="/dashboard"
+            forceRedirectUrl={after}
             appearance={{
               elements: {
                 rootBox: "w-full max-w-md",

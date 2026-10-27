@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useClerk } from "@clerk/clerk-react";
-import { Cake, ClipboardCheck, Download, LayoutDashboard, LogOut, Megaphone, Menu, Settings, Wallet, BookMarked } from "lucide-react";
+import { Cake, ClipboardCheck, Download, LayoutDashboard, LogOut, Megaphone, Menu, Settings, UserCircle, Wallet, BookMarked } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ const NAV = [
   { to: "/admin/birthdays", label: "Birthdays", icon: Cake },
   { to: "/admin/fees", label: "Fees", icon: Wallet },
   { to: "/admin/settings", label: "Settings", icon: Settings },
+  { to: "/admin/profile", label: "My profile", icon: UserCircle },
 ] as const;
 
 function NavList({ waiting, email, onNavigate }: { waiting: number; email: string | null; onNavigate?: () => void }) {
