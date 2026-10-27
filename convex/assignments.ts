@@ -1,10 +1,16 @@
 import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { MIN_BORROW_AGE, ageOn } from "./policy";
+import { newToken } from "./loanHelpers";
 
 export const list = query({
   args: {},
-  handler: async (ctx) => ctx.db.query("assignments").collect(),
+  handler: async (ctx) => {
+    const rows = await ctx.db.query("assignments").collect();
+    // The parent-approval token is a secret link: only signed-in users get it.
+    if (await ctx.auth.getUserIdentity()) return rows;
+    return rows.map(({ approvalToken: _t, ...rest }) => rest);
+  },
 });
 
 export const assign = mutation({
@@ -20,10 +26,25 @@ export const assign = mutation({
     if (ageOn(kid) < MIN_BORROW_AGE) {
       throw new ConvexError(`${kid.name} is under ${MIN_BORROW_AGE} and cannot borrow books yet.`);
     }
-    return ctx.db.insert("assignments", {
+    const book = await ctx.db.get(args.bookId);
+    if (!book) throw new ConvexError("Book not found.");
+    // New loans wait for the parent (link sent by WhatsApp), then for the admin.
+    const token = newToken();
+    const id = await ctx.db.insert("assignments", {
       ...args,
       assignedAt: new Date().toISOString(),
+      status: "pending_parent",
+      approvalToken: token,
     });
+    return {
+      id,
+      token,
+      kidName: kid.name,
+      parentName: kid.parentName,
+      parentPhone: kid.parentPhone,
+      bookTitle: book.title,
+      dueDate: args.dueDate,
+    };
   },
 });
 

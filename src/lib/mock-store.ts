@@ -6,7 +6,8 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
-import { MIN_BORROW_AGE } from "../../convex/policy";
+import { MIN_BORROW_AGE, type LoanStatus } from "../../convex/policy";
+import { announceLoan } from "./loan-notice";
 
 export { MIN_BORROW_AGE };
 
@@ -31,6 +32,7 @@ export type Book = {
   department: string;
   coverUrl?: string;
   copies: number;
+  price?: number;
   issues: BookIssue[];
 };
 
@@ -66,6 +68,20 @@ export type Assignment = {
   returnedAt?: string;
   currentPage?: number;
   completed?: boolean;
+  /** undefined = loan made before approvals existed (treated as approved) */
+  status?: LoanStatus;
+  approvalToken?: string;
+  parentApprovedAt?: string;
+  parentApprovedName?: string;
+  policyVersion?: number;
+  adminApprovedAt?: string;
+  adminApprovedBy?: string;
+  rejectedReason?: string;
+  feeKind?: "lost" | "damaged";
+  feeAmount?: number;
+  feeStatus?: "owed" | "paid" | "waived";
+  feeNote?: string;
+  feeAt?: string;
 };
 
 export type BookReview = {
@@ -198,13 +214,24 @@ export function useApi() {
     addAgeRange: (name: string) => m.addAgeRange({ key: "ageRanges", value: name }),
     deleteAgeRange: (name: string) => m.deleteAgeRange({ key: "ageRanges", value: name }),
 
-    assign: (bookId: string, kidId: string, dueDate: string, teacherId?: string) =>
-      m.assign({
+    assign: async (bookId: string, kidId: string, dueDate: string, teacherId?: string) => {
+      const r = await m.assign({
         bookId: bookId as Id<"books">,
         kidId: kidId as Id<"kids">,
         teacherId: teacherId as Id<"teachers"> | undefined,
         dueDate,
-      }),
+      });
+      // Opens the "send to parent on WhatsApp" dialog (mounted in the teacher layout).
+      announceLoan({
+        token: r.token,
+        kidName: r.kidName,
+        parentName: r.parentName,
+        parentPhone: r.parentPhone,
+        bookTitle: r.bookTitle,
+        dueDate: r.dueDate,
+      });
+      return r;
+    },
 
     returnBook: (assignmentId: string) =>
       m.returnBook({ id: assignmentId as Id<"assignments"> }),
@@ -229,8 +256,14 @@ export function useApi() {
 
 // ─── Utility helpers (unchanged) ─────────────────────────────────────────────
 
+/** Loans made before the approval flow existed have no status: treat them as approved. */
+export function loanStatus(a: Pick<Assignment, "status">): LoanStatus {
+  return a.status ?? "approved";
+}
+
+// A loan only counts as overdue once it has been handed over (approved).
 export function isOverdue(a: Assignment) {
-  return !a.returnedAt && new Date(a.dueDate) < new Date();
+  return !a.returnedAt && loanStatus(a) === "approved" && new Date(a.dueDate) < new Date();
 }
 export function isActive(a: Assignment) {
   return !a.returnedAt;

@@ -3,6 +3,8 @@ import { useAuth } from "@clerk/clerk-react";
 import { useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { AppSidebar, MobileTopBar } from "@/components/admin/AppSidebar";
+import { AppFooter } from "@/components/admin/AppFooter";
+import { LoanSendPrompt } from "@/components/admin/LoanSendPrompt";
 
 export const Route = createFileRoute("/_authenticated")({
   component: Layout,
@@ -36,7 +38,9 @@ function Layout() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8">
           <Outlet />
         </div>
+        <AppFooter />
       </main>
+      <LoanSendPrompt />
     </div>
   );
 }

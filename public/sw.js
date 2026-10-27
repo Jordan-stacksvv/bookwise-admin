@@ -1,7 +1,7 @@
 /* Book Club service worker - app shell only.
  * Convex (data) and Clerk (auth) are cross-origin and are never touched here.
  * Bump CACHE when you change this file so old caches are cleaned up. */
-const CACHE = "bookwise-shell-v1";
+const CACHE = "bookwise-shell-v2";
 const SHELL = ["/", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {

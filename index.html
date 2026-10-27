@@ -5,12 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Madina Central SDA Book Club — Admin</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#1e2a44" />
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="Book Club" />
+    <script>
+      // /admin is its own installable app: use the admin manifest, icon and name there.
+      (function () {
+        var admin = location.pathname === "/admin" || location.pathname.indexOf("/admin/") === 0;
+        document.write('<link rel="manifest" href="' + (admin ? "/admin.webmanifest" : "/manifest.webmanifest") + '" />');
+        document.write('<link rel="apple-touch-icon" href="' + (admin ? "/icons/admin-apple-touch-icon.png" : "/icons/apple-touch-icon.png") + '" />');
+        document.write('<meta name="apple-mobile-web-app-title" content="' + (admin ? "Book Club Admin" : "Book Club") + '" />');
+        if (admin) document.title = "Book Club Admin - Madina Central SDA";
+      })();
+    </script>
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   </head>
   <body>

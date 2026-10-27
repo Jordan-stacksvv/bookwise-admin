@@ -2,6 +2,7 @@
 import { useStore, useApi, isOverdue, isActive } from "@/lib/mock-store";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { BirthdayCard } from "@/components/admin/BirthdayCard";
+import { AdminNotices } from "@/components/admin/AdminNotices";
 import { BookOpen, Users, AlertTriangle, BookMarked, Plus, CalendarDays, GraduationCap, Search, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -180,6 +181,7 @@ function Dashboard() {
         ))}
       </div>
 
+      <AdminNotices />
       <BirthdayCard kids={s.kids} />
 
       <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">

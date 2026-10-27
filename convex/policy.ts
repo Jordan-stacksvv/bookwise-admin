@@ -14,3 +14,19 @@ export function ageOn(kid: { age: number; birthdate?: string }, now: Date = new 
   if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--;
   return Math.max(0, age);
 }
+
+// ---- Loan approval + damage fee defaults (batch 2) -----------------------------------------
+export const DEFAULT_CURRENCY = "GHS";
+/** Placeholder replacement cost. Admins change it under Admin > Settings. */
+export const DEFAULT_DAMAGE_FEE = 50;
+export const DEFAULT_POLICY_TEXT = [
+  "Madina Central SDA Book Club - Borrowing Policy",
+  "",
+  "1. Books are lent to children aged 10 and above.",
+  "2. Please return the book on or before the due date.",
+  "3. Look after the book: keep it clean and dry, and do not write in it.",
+  "4. If a book is lost or damaged, the parent or guardian pays its replacement cost.",
+  "5. A loan only starts after the parent or guardian approves it and the book club admin gives final approval.",
+].join("\n");
+
+export type LoanStatus = "pending_parent" | "pending_admin" | "approved" | "rejected" | "cancelled" | "lost";

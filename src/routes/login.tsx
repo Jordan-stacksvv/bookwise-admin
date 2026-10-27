@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SignIn, SignUp } from "@clerk/clerk-react";
 import { useState } from "react";
 import logo from "@/assets/logo.png";
+import { AppFooter } from "@/components/admin/AppFooter";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -85,6 +86,7 @@ function LoginPage() {
             {mode === "signin" ? "Create an account" : "Sign in"}
           </button>
         </p>
+        <AppFooter />
       </div>
     </div>
   );

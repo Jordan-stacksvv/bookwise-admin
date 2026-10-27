@@ -10,18 +10,33 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as ApproveTokenRouteImport } from './routes/approve.$token'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminReadingRouteImport } from './routes/admin/reading'
+import { Route as AdminFeesRouteImport } from './routes/admin/fees'
+import { Route as AdminBirthdaysRouteImport } from './routes/admin/birthdays'
+import { Route as AdminApprovalsRouteImport } from './routes/admin/approvals'
+import { Route as AdminAnnouncementsRouteImport } from './routes/admin/announcements'
 import { Route as AuthenticatedTeachersRouteImport } from './routes/_authenticated/teachers'
 import { Route as AuthenticatedKidsRouteImport } from './routes/_authenticated/kids'
 import { Route as AuthenticatedDepartmentsRouteImport } from './routes/_authenticated/departments'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 import { Route as AuthenticatedBooksRouteImport } from './routes/_authenticated/books'
+import { Route as AuthenticatedApprovalsRouteImport } from './routes/_authenticated/approvals'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -32,6 +47,46 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const ApproveTokenRoute = ApproveTokenRouteImport.update({
+  id: '/approve/$token',
+  path: '/approve/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReadingRoute = AdminReadingRouteImport.update({
+  id: '/reading',
+  path: '/reading',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFeesRoute = AdminFeesRouteImport.update({
+  id: '/fees',
+  path: '/fees',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBirthdaysRoute = AdminBirthdaysRouteImport.update({
+  id: '/birthdays',
+  path: '/birthdays',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminApprovalsRoute = AdminApprovalsRouteImport.update({
+  id: '/approvals',
+  path: '/approvals',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAnnouncementsRoute = AdminAnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AuthenticatedTeachersRoute = AuthenticatedTeachersRouteImport.update({
   id: '/teachers',
@@ -64,77 +119,142 @@ const AuthenticatedBooksRoute = AuthenticatedBooksRouteImport.update({
   path: '/books',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedApprovalsRoute = AuthenticatedApprovalsRouteImport.update({
+  id: '/approvals',
+  path: '/approvals',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
+  '/approvals': typeof AuthenticatedApprovalsRoute
   '/books': typeof AuthenticatedBooksRoute
   '/calendar': typeof AuthenticatedCalendarRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/departments': typeof AuthenticatedDepartmentsRoute
   '/kids': typeof AuthenticatedKidsRoute
   '/teachers': typeof AuthenticatedTeachersRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
+  '/admin/approvals': typeof AdminApprovalsRoute
+  '/admin/birthdays': typeof AdminBirthdaysRoute
+  '/admin/fees': typeof AdminFeesRoute
+  '/admin/reading': typeof AdminReadingRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/approve/$token': typeof ApproveTokenRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/approvals': typeof AuthenticatedApprovalsRoute
   '/books': typeof AuthenticatedBooksRoute
   '/calendar': typeof AuthenticatedCalendarRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/departments': typeof AuthenticatedDepartmentsRoute
   '/kids': typeof AuthenticatedKidsRoute
   '/teachers': typeof AuthenticatedTeachersRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
+  '/admin/approvals': typeof AdminApprovalsRoute
+  '/admin/birthdays': typeof AdminBirthdaysRoute
+  '/admin/fees': typeof AdminFeesRoute
+  '/admin/reading': typeof AdminReadingRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/approve/$token': typeof ApproveTokenRoute
+  '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
+  '/_authenticated/approvals': typeof AuthenticatedApprovalsRoute
   '/_authenticated/books': typeof AuthenticatedBooksRoute
   '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/departments': typeof AuthenticatedDepartmentsRoute
   '/_authenticated/kids': typeof AuthenticatedKidsRoute
   '/_authenticated/teachers': typeof AuthenticatedTeachersRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
+  '/admin/approvals': typeof AdminApprovalsRoute
+  '/admin/birthdays': typeof AdminBirthdaysRoute
+  '/admin/fees': typeof AdminFeesRoute
+  '/admin/reading': typeof AdminReadingRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/approve/$token': typeof ApproveTokenRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/login'
+    | '/approvals'
     | '/books'
     | '/calendar'
     | '/dashboard'
     | '/departments'
     | '/kids'
     | '/teachers'
+    | '/admin/announcements'
+    | '/admin/approvals'
+    | '/admin/birthdays'
+    | '/admin/fees'
+    | '/admin/reading'
+    | '/admin/settings'
+    | '/approve/$token'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
+    | '/approvals'
     | '/books'
     | '/calendar'
     | '/dashboard'
     | '/departments'
     | '/kids'
     | '/teachers'
+    | '/admin/announcements'
+    | '/admin/approvals'
+    | '/admin/birthdays'
+    | '/admin/fees'
+    | '/admin/reading'
+    | '/admin/settings'
+    | '/approve/$token'
+    | '/admin'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/admin'
     | '/login'
+    | '/_authenticated/approvals'
     | '/_authenticated/books'
     | '/_authenticated/calendar'
     | '/_authenticated/dashboard'
     | '/_authenticated/departments'
     | '/_authenticated/kids'
     | '/_authenticated/teachers'
+    | '/admin/announcements'
+    | '/admin/approvals'
+    | '/admin/birthdays'
+    | '/admin/fees'
+    | '/admin/reading'
+    | '/admin/settings'
+    | '/approve/$token'
+    | '/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  AdminRoute: typeof AdminRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ApproveTokenRoute: typeof ApproveTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -144,6 +264,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -159,6 +286,62 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/approve/$token': {
+      id: '/approve/$token'
+      path: '/approve/$token'
+      fullPath: '/approve/$token'
+      preLoaderRoute: typeof ApproveTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reading': {
+      id: '/admin/reading'
+      path: '/reading'
+      fullPath: '/admin/reading'
+      preLoaderRoute: typeof AdminReadingRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/fees': {
+      id: '/admin/fees'
+      path: '/fees'
+      fullPath: '/admin/fees'
+      preLoaderRoute: typeof AdminFeesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/birthdays': {
+      id: '/admin/birthdays'
+      path: '/birthdays'
+      fullPath: '/admin/birthdays'
+      preLoaderRoute: typeof AdminBirthdaysRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/approvals': {
+      id: '/admin/approvals'
+      path: '/approvals'
+      fullPath: '/admin/approvals'
+      preLoaderRoute: typeof AdminApprovalsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/announcements': {
+      id: '/admin/announcements'
+      path: '/announcements'
+      fullPath: '/admin/announcements'
+      preLoaderRoute: typeof AdminAnnouncementsRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_authenticated/teachers': {
       id: '/_authenticated/teachers'
@@ -202,10 +385,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBooksRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/approvals': {
+      id: '/_authenticated/approvals'
+      path: '/approvals'
+      fullPath: '/approvals'
+      preLoaderRoute: typeof AuthenticatedApprovalsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedApprovalsRoute: typeof AuthenticatedApprovalsRoute
   AuthenticatedBooksRoute: typeof AuthenticatedBooksRoute
   AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -215,6 +406,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedApprovalsRoute: AuthenticatedApprovalsRoute,
   AuthenticatedBooksRoute: AuthenticatedBooksRoute,
   AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
@@ -227,10 +419,34 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface AdminRouteChildren {
+  AdminAnnouncementsRoute: typeof AdminAnnouncementsRoute
+  AdminApprovalsRoute: typeof AdminApprovalsRoute
+  AdminBirthdaysRoute: typeof AdminBirthdaysRoute
+  AdminFeesRoute: typeof AdminFeesRoute
+  AdminReadingRoute: typeof AdminReadingRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAnnouncementsRoute: AdminAnnouncementsRoute,
+  AdminApprovalsRoute: AdminApprovalsRoute,
+  AdminBirthdaysRoute: AdminBirthdaysRoute,
+  AdminFeesRoute: AdminFeesRoute,
+  AdminReadingRoute: AdminReadingRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  AdminRoute: AdminRouteWithChildren,
   LoginRoute: LoginRoute,
+  ApproveTokenRoute: ApproveTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

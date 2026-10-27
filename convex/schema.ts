@@ -11,6 +11,7 @@ export default defineSchema({
     coverUrl: v.optional(v.string()),
     copies: v.number(),
     code: v.optional(v.string()),
+    price: v.optional(v.number()), // replacement cost; falls back to the default damage fee
   }).index("by_code", ["code"]),
 
   bookIssues: defineTable({
@@ -45,9 +46,34 @@ export default defineSchema({
     returnedAt: v.optional(v.string()),
     currentPage: v.optional(v.number()),
     completed: v.optional(v.boolean()),
+    // --- approval flow (batch 2). status undefined = a loan made before approvals existed (treated as approved).
+    status: v.optional(
+      v.union(
+        v.literal("pending_parent"),
+        v.literal("pending_admin"),
+        v.literal("approved"),
+        v.literal("rejected"),
+        v.literal("cancelled"),
+        v.literal("lost"),
+      ),
+    ),
+    approvalToken: v.optional(v.string()),
+    parentApprovedAt: v.optional(v.string()),
+    parentApprovedName: v.optional(v.string()),
+    policyVersion: v.optional(v.number()),
+    adminApprovedAt: v.optional(v.string()),
+    adminApprovedBy: v.optional(v.string()),
+    rejectedReason: v.optional(v.string()),
+    // --- lost / damaged fees
+    feeKind: v.optional(v.union(v.literal("lost"), v.literal("damaged"))),
+    feeAmount: v.optional(v.number()),
+    feeStatus: v.optional(v.union(v.literal("owed"), v.literal("paid"), v.literal("waived"))),
+    feeNote: v.optional(v.string()),
+    feeAt: v.optional(v.string()),
   })
     .index("by_book", ["bookId"])
-    .index("by_kid", ["kidId"]),
+    .index("by_kid", ["kidId"])
+    .index("by_token", ["approvalToken"]),
 
   settings: defineTable({
     key: v.string(),
@@ -65,6 +91,33 @@ export default defineSchema({
   })
     .index("by_kid", ["kidId"])
     .index("by_assignment", ["assignmentId"]),
+
+  // One row (the current policy). Missing row = built-in defaults from convex/policy.ts.
+  loanPolicy: defineTable({
+    text: v.string(),
+    damageFee: v.number(),
+    currency: v.string(),
+    version: v.number(),
+    updatedAt: v.string(),
+  }),
+
+  announcements: defineTable({
+    title: v.string(),
+    body: v.string(),
+    audience: v.array(v.string()), // class names; empty = everyone
+    expiresAt: v.optional(v.string()),
+    createdAt: v.string(),
+    createdBy: v.string(),
+  }),
+
+  readingSets: defineTable({
+    bookId: v.id("books"),
+    department: v.string(),
+    dueDate: v.optional(v.string()),
+    note: v.optional(v.string()),
+    createdAt: v.string(),
+    createdBy: v.string(),
+  }),
 });
 
 

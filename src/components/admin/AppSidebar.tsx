@@ -1,5 +1,5 @@
 ﻿import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, Users, CalendarDays, LogOut, GraduationCap, Menu, Building2, Download } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, CalendarDays, LogOut, GraduationCap, Menu, Building2, Download, ClipboardCheck } from "lucide-react";
 import { useClerk } from "@clerk/clerk-react";
 import logo from "@/assets/logo.png";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -14,6 +14,7 @@ const items = [
   { to: "/kids", label: "Kids", icon: Users },
   { to: "/teachers", label: "Teachers", icon: GraduationCap },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
+  { to: "/approvals", label: "Approvals", icon: ClipboardCheck },
 ] as const;
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
