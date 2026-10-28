@@ -2,6 +2,7 @@ import { mutation, query } from "./secure";
 import { v, ConvexError } from "convex/values";
 import { MIN_BORROW_AGE, ageOn } from "./policy";
 import { newToken } from "./loanHelpers";
+import { logEvent, loanLabel } from "./activity";
 
 export const list = query({
   args: {},
@@ -36,6 +37,7 @@ export const assign = mutation({
       status: "pending_parent",
       approvalToken: token,
     });
+    await logEvent(ctx, "loan.assign", `Assigned "${book.title}" to ${kid.name}, waiting for the parent`, { entity: "loan", entityId: id });
     return {
       id,
       token,
@@ -52,6 +54,7 @@ export const returnBook = mutation({
   args: { id: v.id("assignments") },
   handler: async (ctx, { id }) => {
     await ctx.db.patch(id, { returnedAt: new Date().toISOString() });
+    await logEvent(ctx, "loan.return", `Marked returned: ${await loanLabel(ctx, id)}`, { entity: "loan", entityId: id });
   },
 });
 
@@ -64,5 +67,10 @@ export const update = mutation({
   },
   handler: async (ctx, { id, ...updates }) => {
     await ctx.db.patch(id, updates);
+    const bits: string[] = [];
+    if (updates.currentPage !== undefined) bits.push(`now on page ${updates.currentPage}`);
+    if (updates.completed !== undefined) bits.push(updates.completed ? "finished reading" : "reopened");
+    if (updates.returnedAt !== undefined) bits.push("returned");
+    if (bits.length) await logEvent(ctx, updates.returnedAt !== undefined ? "loan.return" : "loan.progress", `${await loanLabel(ctx, id)}: ${bits.join(", ")}`, { entity: "loan", entityId: id });
   },
 });

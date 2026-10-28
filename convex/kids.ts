@@ -1,5 +1,6 @@
 ﻿import { mutation, query } from "./secure";
 import { v } from "convex/values";
+import { logEvent } from "./activity";
 
 export const list = query({
   args: {},
@@ -15,7 +16,11 @@ export const add = mutation({
     parentName: v.optional(v.string()),
     parentPhone: v.optional(v.string()),
   },
-  handler: async (ctx, args) => ctx.db.insert("kids", args),
+  handler: async (ctx, args) => {
+    const id = await ctx.db.insert("kids", args);
+    await logEvent(ctx, "kid.add", `Added kid ${args.name} (${args.department})`, { entity: "kid", entityId: id });
+    return id;
+  },
 });
 
 export const edit = mutation({
@@ -28,14 +33,20 @@ export const edit = mutation({
     parentName: v.optional(v.string()),
     parentPhone: v.optional(v.string()),
   },
-  handler: async (ctx, { id, ...updates }) => ctx.db.patch(id, updates),
+  handler: async (ctx, { id, ...updates }) => {
+    await ctx.db.patch(id, updates);
+    const k = await ctx.db.get(id);
+    await logEvent(ctx, "kid.edit", `Edited kid ${k?.name ?? "unknown"}`, { entity: "kid", entityId: id });
+  },
 });
 
 export const remove = mutation({
   args: { id: v.id("kids") },
   handler: async (ctx, { id }) => {
+    const gone = await ctx.db.get(id);
     const assignments = await ctx.db.query("assignments").withIndex("by_kid", (q) => q.eq("kidId", id)).collect();
     for (const a of assignments) await ctx.db.delete(a._id);
     await ctx.db.delete(id);
+    await logEvent(ctx, "kid.remove", `Removed kid ${gone?.name ?? "unknown"} and their loans`, { entity: "kid", entityId: id });
   },
 });

@@ -25,6 +25,7 @@ import { Route as AdminFeesRouteImport } from './routes/admin/fees'
 import { Route as AdminBirthdaysRouteImport } from './routes/admin/birthdays'
 import { Route as AdminApprovalsRouteImport } from './routes/admin/approvals'
 import { Route as AdminAnnouncementsRouteImport } from './routes/admin/announcements'
+import { Route as AdminActivityRouteImport } from './routes/admin/activity'
 import { Route as AuthenticatedTeachersRouteImport } from './routes/_authenticated/teachers'
 import { Route as AuthenticatedReviewsRouteImport } from './routes/_authenticated/reviews'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -114,6 +115,11 @@ const AdminAnnouncementsRoute = AdminAnnouncementsRouteImport.update({
   path: '/announcements',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminActivityRoute = AdminActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AuthenticatedTeachersRoute = AuthenticatedTeachersRouteImport.update({
   id: '/teachers',
   path: '/teachers',
@@ -174,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/reviews': typeof AuthenticatedReviewsRoute
   '/teachers': typeof AuthenticatedTeachersRoute
+  '/admin/activity': typeof AdminActivityRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/birthdays': typeof AdminBirthdaysRoute
@@ -199,6 +206,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/reviews': typeof AuthenticatedReviewsRoute
   '/teachers': typeof AuthenticatedTeachersRoute
+  '/admin/activity': typeof AdminActivityRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/birthdays': typeof AdminBirthdaysRoute
@@ -227,6 +235,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/reviews': typeof AuthenticatedReviewsRoute
   '/_authenticated/teachers': typeof AuthenticatedTeachersRoute
+  '/admin/activity': typeof AdminActivityRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/birthdays': typeof AdminBirthdaysRoute
@@ -255,6 +264,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/reviews'
     | '/teachers'
+    | '/admin/activity'
     | '/admin/announcements'
     | '/admin/approvals'
     | '/admin/birthdays'
@@ -280,6 +290,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/reviews'
     | '/teachers'
+    | '/admin/activity'
     | '/admin/announcements'
     | '/admin/approvals'
     | '/admin/birthdays'
@@ -307,6 +318,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/reviews'
     | '/_authenticated/teachers'
+    | '/admin/activity'
     | '/admin/announcements'
     | '/admin/approvals'
     | '/admin/birthdays'
@@ -444,6 +456,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAnnouncementsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/activity': {
+      id: '/admin/activity'
+      path: '/activity'
+      fullPath: '/admin/activity'
+      preLoaderRoute: typeof AdminActivityRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_authenticated/teachers': {
       id: '/_authenticated/teachers'
       path: '/teachers'
@@ -539,6 +558,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
+  AdminActivityRoute: typeof AdminActivityRoute
   AdminAnnouncementsRoute: typeof AdminAnnouncementsRoute
   AdminApprovalsRoute: typeof AdminApprovalsRoute
   AdminBirthdaysRoute: typeof AdminBirthdaysRoute
@@ -552,6 +572,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminActivityRoute: AdminActivityRoute,
   AdminAnnouncementsRoute: AdminAnnouncementsRoute,
   AdminApprovalsRoute: AdminApprovalsRoute,
   AdminBirthdaysRoute: AdminBirthdaysRoute,

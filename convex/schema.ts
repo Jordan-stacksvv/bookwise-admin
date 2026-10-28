@@ -159,6 +159,18 @@ export default defineSchema({
     createdAt: v.string(),
     createdBy: v.string(),
   }),
+
+  // What happened, who did it and when. Written by the server only; admins read it (Admin > Activity).
+  activityLog: defineTable({
+    at: v.string(),
+    actorId: v.optional(v.string()),
+    actorRole: v.string(), // admin | teacher | parent | pending | system
+    actorName: v.string(),
+    action: v.string(), // area.what, e.g. loan.assign
+    summary: v.string(),
+    entity: v.optional(v.string()),
+    entityId: v.optional(v.string()),
+  }).index("by_at", ["at"]),
 });
 
 

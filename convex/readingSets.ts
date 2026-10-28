@@ -2,6 +2,7 @@ import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { getAdmin, requireAdmin } from "./adminAuth";
 import { isApproved } from "./access";
+import { logEvent } from "./activity";
 
 /** A book the admin has set for a whole class to read. */
 export const list = query({
@@ -30,7 +31,7 @@ export const create = mutation({
     if (existing.some((r) => r.bookId === args.bookId && r.department === department)) {
       throw new ConvexError("That book is already set for this class.");
     }
-    return ctx.db.insert("readingSets", {
+    const setId = await ctx.db.insert("readingSets", {
       bookId: args.bookId,
       department,
       dueDate: args.dueDate || undefined,
@@ -38,6 +39,9 @@ export const create = mutation({
       createdAt: new Date().toISOString(),
       createdBy: who.name ?? who.email ?? "Admin",
     });
+    const setBook = await ctx.db.get(args.bookId);
+    await logEvent(ctx, "reading.set", `Set "${setBook?.title ?? "a book"}" for ${department} to read`, { entity: "reading", entityId: setId });
+    return setId;
   },
 });
 
@@ -45,6 +49,9 @@ export const remove = mutation({
   args: { id: v.id("readingSets") },
   handler: async (ctx, { id }) => {
     await requireAdmin(ctx);
+    const gone = await ctx.db.get(id);
+    const goneBook = gone ? await ctx.db.get(gone.bookId) : null;
     await ctx.db.delete(id);
+    await logEvent(ctx, "reading.removed", `Removed "${goneBook?.title ?? "a book"}" from ${gone?.department ?? "a class"} reading`, { entity: "reading", entityId: id });
   },
 });

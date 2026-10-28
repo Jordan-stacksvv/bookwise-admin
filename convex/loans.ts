@@ -3,6 +3,7 @@ import { v, ConvexError } from "convex/values";
 import { getAdmin, requireAdmin } from "./adminAuth";
 import { requireApproved } from "./access";
 import { feeFor, getPolicy } from "./loanHelpers";
+import { logEvent, loanLabel } from "./activity";
 
 const now = () => new Date().toISOString();
 
@@ -55,6 +56,7 @@ export const parentApprove = mutation({
       parentApprovedName: name,
       policyVersion: policy.version,
     });
+    await logEvent(ctx, "loan.parent_approved", `${name} (parent) approved ${await loanLabel(ctx, a._id)}`, { entity: "loan", entityId: a._id, actor: { role: "parent", name } });
     return { ok: true, already: false };
   },
 });
@@ -68,6 +70,7 @@ export const cancel = mutation({
     if (!a) throw new ConvexError("Loan not found.");
     if (a.status !== "pending_parent") throw new ConvexError("Only loans waiting for the parent can be cancelled.");
     await ctx.db.patch(id, { status: "cancelled", returnedAt: now() });
+    await logEvent(ctx, "loan.cancelled", `Cancelled before the parent replied: ${await loanLabel(ctx, id)}`, { entity: "loan", entityId: id });
   },
 });
 
@@ -81,6 +84,7 @@ export const adminApprove = mutation({
     if (a.returnedAt) throw new ConvexError("This loan has already ended.");
     if (a.status !== "pending_admin") throw new ConvexError("The parent has not approved this loan yet.");
     await ctx.db.patch(id, { status: "approved", adminApprovedAt: now(), adminApprovedBy: who.name ?? who.email ?? "Admin" });
+    await logEvent(ctx, "loan.admin_approved", `Final approval: ${await loanLabel(ctx, id)}`, { entity: "loan", entityId: id });
   },
 });
 
@@ -95,6 +99,7 @@ export const adminReject = mutation({
       throw new ConvexError("Only loans that are still waiting can be declined.");
     }
     await ctx.db.patch(id, { status: "rejected", rejectedReason: reason?.trim() || undefined, returnedAt: now() });
+    await logEvent(ctx, "loan.rejected", `Declined ${await loanLabel(ctx, id)}${reason?.trim() ? `: ${reason.trim().slice(0, 120)}` : ""}`, { entity: "loan", entityId: id });
   },
 });
 
@@ -134,6 +139,7 @@ export const chargeFee = mutation({
       if (book) await ctx.db.patch(book._id, { copies: Math.max(0, book.copies - 1) });
     }
     await ctx.db.patch(id, patch);
+    await logEvent(ctx, "policy.fee_charged", `Charged ${kind} fee of ${policy.currency} ${fee}: ${await loanLabel(ctx, id)}`, { entity: "loan", entityId: id });
   },
 });
 
@@ -144,5 +150,6 @@ export const setFeeStatus = mutation({
     const a = await ctx.db.get(id);
     if (!a || a.feeStatus === undefined) throw new ConvexError("No fee recorded for this loan.");
     await ctx.db.patch(id, { feeStatus });
+    await logEvent(ctx, "policy.fee_status", `Fee marked ${feeStatus}: ${await loanLabel(ctx, id)}`, { entity: "loan", entityId: id });
   },
 });

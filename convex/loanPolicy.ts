@@ -2,6 +2,7 @@ import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { requireAdmin } from "./adminAuth";
 import { getPolicy } from "./loanHelpers";
+import { logEvent } from "./activity";
 
 /** Public on purpose: the parent approval page shows the same text. */
 export const get = query({
@@ -27,6 +28,7 @@ export const save = mutation({
     const doc = { text, damageFee: args.damageFee, currency, version: current.version + 1, updatedAt: new Date().toISOString() };
     if (row) await ctx.db.replace(row._id, doc);
     else await ctx.db.insert("loanPolicy", doc);
+    await logEvent(ctx, "policy.updated", `Updated the borrowing policy (version ${doc.version}), damage fee ${currency} ${args.damageFee}`, { entity: "policy" });
     return { version: doc.version };
   },
 });
@@ -40,5 +42,7 @@ export const setBookPrice = mutation({
       throw new ConvexError("Enter a price between 0 and 100000.");
     }
     await ctx.db.patch(bookId, { price });
+    const priced = await ctx.db.get(bookId);
+    await logEvent(ctx, "policy.book_price", `Set the replacement price of "${priced?.title ?? "a book"}" to ${price ?? "the default"}`, { entity: "book", entityId: bookId });
   },
 });

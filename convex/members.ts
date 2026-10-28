@@ -2,6 +2,7 @@ import { mutation, query } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { getAdmin, requireAdmin, requireSignedIn } from "./adminAuth";
+import { logEvent, memberLabel } from "./activity";
 
 const HOUR = 3600 * 1000;
 const clean = (s?: string, max = 120) => {
@@ -62,6 +63,7 @@ export const sync = mutation({
         createdAt: now,
         lastSeenAt: now,
       });
+      await logEvent(ctx, "member.signup", `${next.name ?? next.email ?? "Someone"} signed in for the first time (${approval ? "approved automatically" : "waiting for approval"})`, { entity: "member", entityId: who.userId! });
       return;
     }
 
@@ -72,6 +74,7 @@ export const sync = mutation({
     // Waiting (or legacy, no status) and now recognised: approve. A person an admin DENIED stays denied.
     if (approval && row.status !== "approved" && row.status !== "denied") {
       Object.assign(patch, { status: "approved", approvedAt: approval.approvedAt, approvedBy: approval.approvedBy, teacherId: approval.teacherId ?? row.teacherId });
+      await logEvent(ctx, "member.auto_approved", `${next.name ?? next.email ?? "Someone"} was approved automatically`, { entity: "member", entityId: who.userId! });
     }
     if (Object.keys(patch).length) await ctx.db.patch(row._id, patch);
   },
@@ -165,6 +168,7 @@ export const approve = mutation({
       if (link) patch.teacherId = link;
     }
     await ctx.db.patch(m._id, patch);
+    await logEvent(ctx, "member.approved", `Approved ${m.name ?? m.email ?? "someone"} as ${as}`, { entity: "member", entityId: userId });
   },
 });
 
@@ -180,6 +184,7 @@ export const deny = mutation({
     const rows = await ctx.db.query("admins").withIndex("by_user", (q) => q.eq("userId", userId)).collect();
     for (const r of rows) await ctx.db.delete(r._id);
     await ctx.db.patch(m._id, { status: "denied" });
+    await logEvent(ctx, "member.denied", `Removed access for ${m.name ?? m.email ?? "someone"}`, { entity: "member", entityId: userId });
   },
 });
 
@@ -196,6 +201,7 @@ export const makeAdmin = mutation({
     if (m.status !== "approved") await ctx.db.patch(m._id, { status: "approved", approvedAt: new Date().toISOString(), approvedBy: who.name ?? who.email ?? "Admin" });
     const reqs = await ctx.db.query("adminRequests").withIndex("by_user", (q) => q.eq("userId", userId)).collect();
     for (const r of reqs) await ctx.db.delete(r._id);
+    await logEvent(ctx, "admin.made", `Made ${m.name ?? m.email ?? "someone"} an admin`, { entity: "member", entityId: userId });
   },
 });
 
@@ -208,5 +214,6 @@ export const removeAdmin = mutation({
     if (envIds().includes(userId.toLowerCase())) throw new ConvexError("This admin is set in the server settings and cannot be removed here.");
     const rows = await ctx.db.query("admins").withIndex("by_user", (q) => q.eq("userId", userId)).collect();
     for (const r of rows) await ctx.db.delete(r._id);
+    await logEvent(ctx, "admin.removed", `${await memberLabel(ctx, userId)} is no longer an admin`, { entity: "member", entityId: userId });
   },
 });

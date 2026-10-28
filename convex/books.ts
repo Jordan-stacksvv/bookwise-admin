@@ -1,5 +1,6 @@
 import { mutation, query } from "./secure";
 import { v, ConvexError } from "convex/values";
+import { logEvent } from "./activity";
 
 export const list = query({
   args: {},
@@ -31,7 +32,9 @@ export const add = mutation({
       const dup = await ctx.db.query("books").withIndex("by_code", (q) => q.eq("code", code)).first();
       if (dup) throw new ConvexError(`Book code "${code}" is already used by "${dup.title}".`);
     }
-    return await ctx.db.insert("books", code ? { ...rest, code } : rest);
+    const id = await ctx.db.insert("books", code ? { ...rest, code } : rest);
+    await logEvent(ctx, "book.add", `Added book "${args.title}"${code ? ` (${code})` : ""}`, { entity: "book", entityId: id });
+    return id;
   },
 });
 
@@ -57,12 +60,15 @@ export const edit = mutation({
       updates.code = code || undefined; // empty string clears the code
     }
     await ctx.db.patch(id, updates);
+    const edited = await ctx.db.get(id);
+    await logEvent(ctx, "book.edit", `Edited book "${edited?.title ?? "unknown"}"`, { entity: "book", entityId: id });
   },
 });
 
 export const remove = mutation({
   args: { id: v.id("books") },
   handler: async (ctx, { id }) => {
+    const gone = await ctx.db.get(id);
     // Remove issues
     const issues = await ctx.db.query("bookIssues").withIndex("by_book", (q) => q.eq("bookId", id)).collect();
     for (const i of issues) await ctx.db.delete(i._id);
@@ -70,6 +76,7 @@ export const remove = mutation({
     const assignments = await ctx.db.query("assignments").withIndex("by_book", (q) => q.eq("bookId", id)).collect();
     for (const a of assignments) await ctx.db.delete(a._id);
     await ctx.db.delete(id);
+    await logEvent(ctx, "book.remove", `Removed book "${gone?.title ?? "unknown"}" and its loans`, { entity: "book", entityId: id });
   },
 });
 
@@ -78,6 +85,8 @@ export const addIssue = mutation({
   handler: async (ctx, { bookId, note }) => {
     if (!note.trim()) return;
     await ctx.db.insert("bookIssues", { bookId, note: note.trim(), reportedAt: new Date().toISOString() });
+    const issueBook = await ctx.db.get(bookId);
+    await logEvent(ctx, "book.issue", `Reported a problem with "${issueBook?.title ?? "a book"}": ${note.trim().slice(0, 120)}`, { entity: "book", entityId: bookId });
   },
 });
 
@@ -85,5 +94,6 @@ export const removeIssue = mutation({
   args: { issueId: v.id("bookIssues") },
   handler: async (ctx, { issueId }) => {
     await ctx.db.delete(issueId);
+    await logEvent(ctx, "book.issue_removed", "Cleared a reported book problem", { entity: "book" });
   },
 });

@@ -1,5 +1,6 @@
 import { mutation, query } from "./secure";
 import { v } from "convex/values";
+import { logEvent } from "./activity";
 
 const DEFAULTS = {
   categories: ["Spiritual", "Bible Stories", "Stories", "Allegory", "Devotional", "History"],
@@ -27,6 +28,7 @@ export const add = mutation({
     const next = [...current, v2];
     if (existing) await ctx.db.patch(existing._id, { values: next });
     else await ctx.db.insert("settings", { key, values: next });
+    await logEvent(ctx, "settings.added", `Added "${v2}" to ${key}`, { entity: "settings" });
   },
 });
 
@@ -39,5 +41,6 @@ export const remove = mutation({
     const next = current.filter((v3: string) => v3 !== value);
     if (existing) await ctx.db.patch(existing._id, { values: next });
     else await ctx.db.insert("settings", { key, values: next });
+    await logEvent(ctx, "settings.removed", `Removed "${value}" from ${key}`, { entity: "settings" });
   },
 });

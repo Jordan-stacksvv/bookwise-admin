@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useClerk } from "@clerk/clerk-react";
-import { Cake, ClipboardCheck, Download, LayoutDashboard, LogOut, Megaphone, Menu, Settings, UserCircle, Users, Wallet, BookMarked, BookOpenCheck } from "lucide-react";
+import { Cake, ClipboardCheck, Download, LayoutDashboard, LogOut, Megaphone, Menu, Settings, UserCircle, Users, Wallet, BookMarked, BookOpenCheck, ScrollText } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useMemo, useState, type ReactNode } from "react";
@@ -20,6 +20,7 @@ const NAV = [
   { to: "/admin/reading", label: "Class reading", icon: BookMarked },
   { to: "/admin/birthdays", label: "Birthdays", icon: Cake },
   { to: "/admin/fees", label: "Fees", icon: Wallet },
+  { to: "/admin/activity", label: "Activity", icon: ScrollText },
   { to: "/admin/people", label: "People", icon: Users, badge: "people" },
   { to: "/admin/settings", label: "Settings", icon: Settings },
   { to: "/admin/profile", label: "My profile", icon: UserCircle },

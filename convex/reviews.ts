@@ -3,6 +3,7 @@ import { v, ConvexError } from "convex/values";
 import { requireAdmin } from "./adminAuth";
 import { isApproved, requireApproved } from "./access";
 import { newToken } from "./loanHelpers";
+import { logEvent, kidBookLabel } from "./activity";
 
 const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
 
@@ -62,7 +63,7 @@ export const add = mutation({
       }
     }
     const now = new Date().toISOString();
-    return ctx.db.insert("bookReviews", {
+    const reviewId = await ctx.db.insert("bookReviews", {
       assignmentId: args.assignmentId,
       kidId: args.kidId,
       bookId: args.bookId,
@@ -73,6 +74,8 @@ export const add = mutation({
       status: "pending",
       submittedAt: now,
     });
+    await logEvent(ctx, "review.add", `Review added for ${await kidBookLabel(ctx, args.kidId, args.bookId)}${args.imageId ? " (with photo)" : ""}, sent to the admin`, { entity: "review", entityId: reviewId });
+    return reviewId;
   },
 });
 
@@ -85,6 +88,7 @@ export const submit = mutation({
     if (!r) throw new ConvexError("Review not found.");
     if (r.status !== undefined && r.status !== "rejected") throw new ConvexError("This review has already been submitted.");
     await ctx.db.patch(id, { status: "pending", submittedAt: new Date().toISOString(), rejectedReason: undefined });
+    await logEvent(ctx, "review.submit", `Review submitted to the admin: ${await kidBookLabel(ctx, r.kidId, r.bookId)}`, { entity: "review", entityId: id });
   },
 });
 
@@ -93,6 +97,8 @@ export const markSent = mutation({
   handler: async (ctx, { id }) => {
     await requireApproved(ctx);
     await ctx.db.patch(id, { sentToParentAt: new Date().toISOString() });
+    const sent = await ctx.db.get(id);
+    if (sent) await logEvent(ctx, "review.sent", `Review sent to the parent: ${await kidBookLabel(ctx, sent.kidId, sent.bookId)}`, { entity: "review", entityId: id });
   },
 });
 
@@ -104,6 +110,7 @@ export const remove = mutation({
     if (!r) return;
     if (r.imageId) await ctx.storage.delete(r.imageId);
     await ctx.db.delete(id);
+    await logEvent(ctx, "review.remove", `Review deleted: ${await kidBookLabel(ctx, r.kidId, r.bookId)}`, { entity: "review", entityId: id });
   },
 });
 
@@ -122,6 +129,7 @@ export const approve = mutation({
       decidedBy: who.name ?? who.email ?? "Admin",
       rejectedReason: undefined,
     });
+    await logEvent(ctx, "review.approved", `Review published: ${await kidBookLabel(ctx, r.kidId, r.bookId)}`, { entity: "review", entityId: id });
   },
 });
 
@@ -139,6 +147,7 @@ export const reject = mutation({
       decidedAt: new Date().toISOString(),
       decidedBy: who.name ?? who.email ?? "Admin",
     });
+    await logEvent(ctx, r.status === "approved" ? "review.taken_down" : "review.declined", `${r.status === "approved" ? "Review taken down" : "Review declined"}: ${await kidBookLabel(ctx, r.kidId, r.bookId)}${reason?.trim() ? ` (${reason.trim().slice(0, 100)})` : ""}`, { entity: "review", entityId: id });
   },
 });
 

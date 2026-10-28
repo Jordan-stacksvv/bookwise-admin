@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { getAdmin, requireAdmin, requireSignedIn } from "./adminAuth";
+import { logEvent } from "./activity";
 
 const clean = (s?: string, max = 120) => {
   const t = s?.trim();
@@ -22,6 +23,7 @@ export const requestAccess = mutation({
     };
     if (existing) await ctx.db.replace(existing._id, doc);
     else await ctx.db.insert("adminRequests", doc);
+    await logEvent(ctx, "admin.requested", `${doc.name ?? doc.email ?? "Someone"} asked to become an admin`, { entity: "member", entityId: doc.userId });
   },
 });
 
@@ -70,6 +72,7 @@ export const approve = mutation({
       });
     }
     await ctx.db.delete(id);
+    await logEvent(ctx, "admin.made", `Approved the admin request from ${r.name ?? r.email ?? "someone"}`, { entity: "member", entityId: r.userId });
   },
 });
 
@@ -77,7 +80,9 @@ export const decline = mutation({
   args: { id: v.id("adminRequests") },
   handler: async (ctx, { id }) => {
     await requireAdmin(ctx);
+    const req = await ctx.db.get(id);
     await ctx.db.delete(id);
+    await logEvent(ctx, "admin.request_declined", `Declined the admin request from ${req?.name ?? req?.email ?? "someone"}`, { entity: "member" });
   },
 });
 
@@ -89,5 +94,6 @@ export const remove = mutation({
     if (!row) return;
     if (row.userId === who.userId) throw new ConvexError("You cannot remove yourself.");
     await ctx.db.delete(id);
+    await logEvent(ctx, "admin.removed", `${row.name ?? row.email ?? "Someone"} is no longer an admin`, { entity: "member", entityId: row.userId });
   },
 });
