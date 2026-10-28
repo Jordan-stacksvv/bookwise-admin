@@ -1,13 +1,13 @@
 import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { getAdmin, requireAdmin } from "./adminAuth";
+import { isApproved } from "./access";
 
 /** A book the admin has set for a whole class to read. */
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    const who = await getAdmin(ctx);
-    if (!who.signedIn) return [];
+    if (!(await isApproved(ctx))) return [];
     return ctx.db.query("readingSets").order("desc").collect();
   },
 });

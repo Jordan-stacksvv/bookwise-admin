@@ -1,5 +1,5 @@
 ﻿import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, Users, CalendarDays, LogOut, GraduationCap, Menu, Building2, Download, ClipboardCheck, UserCircle } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, CalendarDays, LogOut, GraduationCap, Menu, Building2, Download, ClipboardCheck, UserCircle, BookOpenCheck } from "lucide-react";
 import { useClerk } from "@clerk/clerk-react";
 import logo from "@/assets/logo.png";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -15,6 +15,7 @@ const items = [
   { to: "/teachers", label: "Teachers", icon: GraduationCap },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
   { to: "/approvals", label: "Approvals", icon: ClipboardCheck },
+  { to: "/reviews", label: "Reviews", icon: BookOpenCheck },
   { to: "/profile", label: "My profile", icon: UserCircle },
 ] as const;
 

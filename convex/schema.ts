@@ -88,9 +88,18 @@ export default defineSchema({
     summary: v.string(),
     createdAt: v.string(),
     sentToParentAt: v.optional(v.string()),
+    // --- publishing (batch 2). status undefined = saved before approvals existed (not published).
+    imageId: v.optional(v.id("_storage")),
+    status: v.optional(v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected"))),
+    submittedAt: v.optional(v.string()),
+    decidedAt: v.optional(v.string()),
+    decidedBy: v.optional(v.string()),
+    rejectedReason: v.optional(v.string()),
+    shareToken: v.optional(v.string()),
   })
     .index("by_kid", ["kidId"])
-    .index("by_assignment", ["assignmentId"]),
+    .index("by_assignment", ["assignmentId"])
+    .index("by_token", ["shareToken"]),
 
   // One row (the current policy). Missing row = built-in defaults from convex/policy.ts.
   loanPolicy: defineTable({
@@ -107,7 +116,12 @@ export default defineSchema({
     name: v.optional(v.string()),
     email: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
-    role: v.optional(v.union(v.literal("teacher"), v.literal("admin"))),
+    role: v.optional(v.union(v.literal("teacher"), v.literal("admin"))), // what they picked on the login page
+    // pending until an admin approves. undefined (recorded before approvals existed) counts as pending.
+    status: v.optional(v.union(v.literal("pending"), v.literal("approved"), v.literal("denied"))),
+    approvedAt: v.optional(v.string()),
+    approvedBy: v.optional(v.string()),
+    teacherId: v.optional(v.id("teachers")),
     createdAt: v.string(),
     lastSeenAt: v.string(),
   }).index("by_user", ["userId"]),

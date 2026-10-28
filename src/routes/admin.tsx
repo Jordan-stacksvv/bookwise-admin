@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../../convex/_generated/api";
 import { AdminShell } from "@/components/admin-app/AdminShell";
+import { AccessDenied, PendingApproval } from "@/components/admin/AccessGate";
 import { AppFooter } from "@/components/admin/AppFooter";
 import { MemberSync } from "@/components/admin/MemberSync";
 import { Button } from "@/components/ui/button";
@@ -52,7 +53,7 @@ function AdminLayout() {
     return (
       <>
         <MemberSync />
-        <NoAccess />
+        <NotAdmin />
       </>
     );
   }
@@ -63,6 +64,15 @@ function AdminLayout() {
       <Outlet />
     </AdminShell>
   );
+}
+
+/** Not an admin: waiting for approval, turned away, or an approved teacher who may ask to become an admin. */
+function NotAdmin() {
+  const access = useQuery(api.access.me);
+  if (access === undefined) return <Spinner />;
+  if (access.status === "denied") return <AccessDenied />;
+  if (access.status === "approved") return <NoAccess />;
+  return <PendingApproval requestedRole="admin" />;
 }
 
 function NoAccess() {

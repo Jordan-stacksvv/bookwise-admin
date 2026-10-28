@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
-import { getAdmin, requireAdmin, requireSignedIn } from "./adminAuth";
+import { getAdmin, requireAdmin } from "./adminAuth";
+import { requireApproved } from "./access";
 import { feeFor, getPolicy } from "./loanHelpers";
 
 const now = () => new Date().toISOString();
@@ -62,7 +63,7 @@ export const parentApprove = mutation({
 export const cancel = mutation({
   args: { id: v.id("assignments") },
   handler: async (ctx, { id }) => {
-    await requireSignedIn(ctx);
+    await requireApproved(ctx);
     const a = await ctx.db.get(id);
     if (!a) throw new ConvexError("Loan not found.");
     if (a.status !== "pending_parent") throw new ConvexError("Only loans waiting for the parent can be cancelled.");

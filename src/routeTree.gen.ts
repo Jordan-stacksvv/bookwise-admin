@@ -14,15 +14,19 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as ReviewTokenRouteImport } from './routes/review.$token'
 import { Route as ApproveTokenRouteImport } from './routes/approve.$token'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminReviewsRouteImport } from './routes/admin/reviews'
 import { Route as AdminReadingRouteImport } from './routes/admin/reading'
 import { Route as AdminProfileRouteImport } from './routes/admin/profile'
+import { Route as AdminPeopleRouteImport } from './routes/admin/people'
 import { Route as AdminFeesRouteImport } from './routes/admin/fees'
 import { Route as AdminBirthdaysRouteImport } from './routes/admin/birthdays'
 import { Route as AdminApprovalsRouteImport } from './routes/admin/approvals'
 import { Route as AdminAnnouncementsRouteImport } from './routes/admin/announcements'
 import { Route as AuthenticatedTeachersRouteImport } from './routes/_authenticated/teachers'
+import { Route as AuthenticatedReviewsRouteImport } from './routes/_authenticated/reviews'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedKidsRouteImport } from './routes/_authenticated/kids'
 import { Route as AuthenticatedDepartmentsRouteImport } from './routes/_authenticated/departments'
@@ -55,6 +59,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const ReviewTokenRoute = ReviewTokenRouteImport.update({
+  id: '/review/$token',
+  path: '/review/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApproveTokenRoute = ApproveTokenRouteImport.update({
   id: '/approve/$token',
   path: '/approve/$token',
@@ -65,6 +74,11 @@ const AdminSettingsRoute = AdminSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminReviewsRoute = AdminReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminReadingRoute = AdminReadingRouteImport.update({
   id: '/reading',
   path: '/reading',
@@ -73,6 +87,11 @@ const AdminReadingRoute = AdminReadingRouteImport.update({
 const AdminProfileRoute = AdminProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPeopleRoute = AdminPeopleRouteImport.update({
+  id: '/people',
+  path: '/people',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminFeesRoute = AdminFeesRouteImport.update({
@@ -98,6 +117,11 @@ const AdminAnnouncementsRoute = AdminAnnouncementsRouteImport.update({
 const AuthenticatedTeachersRoute = AuthenticatedTeachersRouteImport.update({
   id: '/teachers',
   path: '/teachers',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedReviewsRoute = AuthenticatedReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
@@ -148,15 +172,19 @@ export interface FileRoutesByFullPath {
   '/departments': typeof AuthenticatedDepartmentsRoute
   '/kids': typeof AuthenticatedKidsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/reviews': typeof AuthenticatedReviewsRoute
   '/teachers': typeof AuthenticatedTeachersRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/birthdays': typeof AdminBirthdaysRoute
   '/admin/fees': typeof AdminFeesRoute
+  '/admin/people': typeof AdminPeopleRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/reading': typeof AdminReadingRoute
+  '/admin/reviews': typeof AdminReviewsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/approve/$token': typeof ApproveTokenRoute
+  '/review/$token': typeof ReviewTokenRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -169,15 +197,19 @@ export interface FileRoutesByTo {
   '/departments': typeof AuthenticatedDepartmentsRoute
   '/kids': typeof AuthenticatedKidsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/reviews': typeof AuthenticatedReviewsRoute
   '/teachers': typeof AuthenticatedTeachersRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/birthdays': typeof AdminBirthdaysRoute
   '/admin/fees': typeof AdminFeesRoute
+  '/admin/people': typeof AdminPeopleRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/reading': typeof AdminReadingRoute
+  '/admin/reviews': typeof AdminReviewsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/approve/$token': typeof ApproveTokenRoute
+  '/review/$token': typeof ReviewTokenRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
@@ -193,15 +225,19 @@ export interface FileRoutesById {
   '/_authenticated/departments': typeof AuthenticatedDepartmentsRoute
   '/_authenticated/kids': typeof AuthenticatedKidsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/reviews': typeof AuthenticatedReviewsRoute
   '/_authenticated/teachers': typeof AuthenticatedTeachersRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/birthdays': typeof AdminBirthdaysRoute
   '/admin/fees': typeof AdminFeesRoute
+  '/admin/people': typeof AdminPeopleRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/reading': typeof AdminReadingRoute
+  '/admin/reviews': typeof AdminReviewsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/approve/$token': typeof ApproveTokenRoute
+  '/review/$token': typeof ReviewTokenRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -217,15 +253,19 @@ export interface FileRouteTypes {
     | '/departments'
     | '/kids'
     | '/profile'
+    | '/reviews'
     | '/teachers'
     | '/admin/announcements'
     | '/admin/approvals'
     | '/admin/birthdays'
     | '/admin/fees'
+    | '/admin/people'
     | '/admin/profile'
     | '/admin/reading'
+    | '/admin/reviews'
     | '/admin/settings'
     | '/approve/$token'
+    | '/review/$token'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -238,15 +278,19 @@ export interface FileRouteTypes {
     | '/departments'
     | '/kids'
     | '/profile'
+    | '/reviews'
     | '/teachers'
     | '/admin/announcements'
     | '/admin/approvals'
     | '/admin/birthdays'
     | '/admin/fees'
+    | '/admin/people'
     | '/admin/profile'
     | '/admin/reading'
+    | '/admin/reviews'
     | '/admin/settings'
     | '/approve/$token'
+    | '/review/$token'
     | '/admin'
   id:
     | '__root__'
@@ -261,15 +305,19 @@ export interface FileRouteTypes {
     | '/_authenticated/departments'
     | '/_authenticated/kids'
     | '/_authenticated/profile'
+    | '/_authenticated/reviews'
     | '/_authenticated/teachers'
     | '/admin/announcements'
     | '/admin/approvals'
     | '/admin/birthdays'
     | '/admin/fees'
+    | '/admin/people'
     | '/admin/profile'
     | '/admin/reading'
+    | '/admin/reviews'
     | '/admin/settings'
     | '/approve/$token'
+    | '/review/$token'
     | '/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -279,6 +327,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   LoginRoute: typeof LoginRoute
   ApproveTokenRoute: typeof ApproveTokenRoute
+  ReviewTokenRoute: typeof ReviewTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -318,6 +367,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/review/$token': {
+      id: '/review/$token'
+      path: '/review/$token'
+      fullPath: '/review/$token'
+      preLoaderRoute: typeof ReviewTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/approve/$token': {
       id: '/approve/$token'
       path: '/approve/$token'
@@ -332,6 +388,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/reviews': {
+      id: '/admin/reviews'
+      path: '/reviews'
+      fullPath: '/admin/reviews'
+      preLoaderRoute: typeof AdminReviewsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/reading': {
       id: '/admin/reading'
       path: '/reading'
@@ -344,6 +407,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/admin/profile'
       preLoaderRoute: typeof AdminProfileRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/people': {
+      id: '/admin/people'
+      path: '/people'
+      fullPath: '/admin/people'
+      preLoaderRoute: typeof AdminPeopleRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/fees': {
@@ -379,6 +449,13 @@ declare module '@tanstack/react-router' {
       path: '/teachers'
       fullPath: '/teachers'
       preLoaderRoute: typeof AuthenticatedTeachersRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/reviews': {
+      id: '/_authenticated/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof AuthenticatedReviewsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/profile': {
@@ -441,6 +518,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDepartmentsRoute: typeof AuthenticatedDepartmentsRoute
   AuthenticatedKidsRoute: typeof AuthenticatedKidsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedReviewsRoute: typeof AuthenticatedReviewsRoute
   AuthenticatedTeachersRoute: typeof AuthenticatedTeachersRoute
 }
 
@@ -452,6 +530,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDepartmentsRoute: AuthenticatedDepartmentsRoute,
   AuthenticatedKidsRoute: AuthenticatedKidsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedReviewsRoute: AuthenticatedReviewsRoute,
   AuthenticatedTeachersRoute: AuthenticatedTeachersRoute,
 }
 
@@ -464,8 +543,10 @@ interface AdminRouteChildren {
   AdminApprovalsRoute: typeof AdminApprovalsRoute
   AdminBirthdaysRoute: typeof AdminBirthdaysRoute
   AdminFeesRoute: typeof AdminFeesRoute
+  AdminPeopleRoute: typeof AdminPeopleRoute
   AdminProfileRoute: typeof AdminProfileRoute
   AdminReadingRoute: typeof AdminReadingRoute
+  AdminReviewsRoute: typeof AdminReviewsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -475,8 +556,10 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminApprovalsRoute: AdminApprovalsRoute,
   AdminBirthdaysRoute: AdminBirthdaysRoute,
   AdminFeesRoute: AdminFeesRoute,
+  AdminPeopleRoute: AdminPeopleRoute,
   AdminProfileRoute: AdminProfileRoute,
   AdminReadingRoute: AdminReadingRoute,
+  AdminReviewsRoute: AdminReviewsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
@@ -489,6 +572,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   LoginRoute: LoginRoute,
   ApproveTokenRoute: ApproveTokenRoute,
+  ReviewTokenRoute: ReviewTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

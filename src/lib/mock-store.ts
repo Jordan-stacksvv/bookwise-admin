@@ -94,6 +94,14 @@ export type BookReview = {
   summary: string;
   createdAt: string;
   sentToParentAt?: string;
+  imageUrl?: string | null;
+  /** undefined = saved before approvals existed */
+  status?: "pending" | "approved" | "rejected";
+  submittedAt?: string;
+  decidedAt?: string;
+  decidedBy?: string;
+  rejectedReason?: string;
+  shareToken?: string;
 };
 
 type StoreState = {
@@ -239,13 +247,14 @@ export function useApi() {
     updateAssignment: (id: string, updates: Partial<Pick<Assignment, "currentPage" | "completed" | "returnedAt">>) =>
       m.updateAssignment({ id: id as Id<"assignments">, ...updates }),
 
-    addReview: (r: { assignmentId: string; kidId: string; bookId: string; chapterRange?: string; summary: string }) =>
+    addReview: (r: { assignmentId: string; kidId: string; bookId: string; chapterRange?: string; summary: string; imageId?: string }) =>
       m.addReview({
         assignmentId: r.assignmentId as Id<"assignments">,
         kidId: r.kidId as Id<"kids">,
         bookId: r.bookId as Id<"books">,
         chapterRange: r.chapterRange,
         summary: r.summary,
+        imageId: r.imageId as Id<"_storage"> | undefined,
       }),
 
     markReviewSent: (id: string) => m.markReviewSent({ id: id as Id<"bookReviews"> }),

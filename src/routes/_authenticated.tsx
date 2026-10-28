@@ -6,6 +6,7 @@ import { AppSidebar, MobileTopBar } from "@/components/admin/AppSidebar";
 import { AppFooter } from "@/components/admin/AppFooter";
 import { LoanSendPrompt } from "@/components/admin/LoanSendPrompt";
 import { MemberSync } from "@/components/admin/MemberSync";
+import { AccessGate } from "@/components/admin/AccessGate";
 
 export const Route = createFileRoute("/_authenticated")({
   component: Layout,
@@ -32,6 +33,9 @@ function Layout() {
   if (!isSignedIn) return null;
 
   return (
+    <>
+      <MemberSync />
+      <AccessGate>
     <div className="flex min-h-screen w-full bg-background">
       <AppSidebar />
       <main className="flex-1 min-w-0">
@@ -42,7 +46,8 @@ function Layout() {
         <AppFooter />
       </main>
       <LoanSendPrompt />
-      <MemberSync />
     </div>
+      </AccessGate>
+    </>
   );
 }

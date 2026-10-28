@@ -1,4 +1,4 @@
-import { mutation, query } from "./_generated/server";
+import { mutation, query } from "./secure";
 import { v, ConvexError } from "convex/values";
 import { MIN_BORROW_AGE, ageOn } from "./policy";
 import { newToken } from "./loanHelpers";

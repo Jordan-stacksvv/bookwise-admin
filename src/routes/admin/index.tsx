@@ -7,6 +7,7 @@ import { api } from "../../../convex/_generated/api";
 import { ChargeFeeDialog, type ChargeTarget } from "@/components/admin-app/ChargeFeeDialog";
 import { Empty, Panel, Stat, daysBetween, fmtDate } from "@/components/admin-app/ui";
 import { BirthdayCard } from "@/components/admin/BirthdayCard";
+import { PeopleWaiting } from "@/components/admin-app/PeopleWaiting";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Button } from "@/components/ui/button";
 import { whatsappLink } from "@/lib/approval-link";
@@ -118,6 +119,14 @@ function Overview() {
           {d.waitingAdmin} loan{d.waitingAdmin === 1 ? " is" : "s are"} waiting for your final approval →
         </Link>
       )}
+
+      {s.reviews.filter((r) => r.status === "pending").length > 0 && (
+        <Link to="/admin/reviews" className="block mb-6 rounded-xl border border-sky-500/40 bg-sky-500/10 p-4 text-sm font-medium hover:bg-sky-500/15 transition">
+          {s.reviews.filter((r) => r.status === "pending").length} book review(s) waiting for your approval →
+        </Link>
+      )}
+
+      <PeopleWaiting />
 
       <BirthdayCard kids={s.kids} />
 

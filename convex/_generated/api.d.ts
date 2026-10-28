@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as access from "../access.js";
 import type * as adminAuth from "../adminAuth.js";
 import type * as admins from "../admins.js";
 import type * as announcements from "../announcements.js";
@@ -21,6 +22,7 @@ import type * as members from "../members.js";
 import type * as policy from "../policy.js";
 import type * as readingSets from "../readingSets.js";
 import type * as reviews from "../reviews.js";
+import type * as secure from "../secure.js";
 import type * as seed from "../seed.js";
 import type * as settings from "../settings.js";
 import type * as teachers from "../teachers.js";
@@ -33,6 +35,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  access: typeof access;
   adminAuth: typeof adminAuth;
   admins: typeof admins;
   announcements: typeof announcements;
@@ -46,6 +49,7 @@ declare const fullApi: ApiFromModules<{
   policy: typeof policy;
   readingSets: typeof readingSets;
   reviews: typeof reviews;
+  secure: typeof secure;
   seed: typeof seed;
   settings: typeof settings;
   teachers: typeof teachers;

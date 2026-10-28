@@ -21,6 +21,8 @@ import {
 import { Plus, Trash2, BookPlus, ChevronDown, RotateCcw, CheckCircle2, Circle, MessageCircle, BookOpenCheck } from "lucide-react";
 import { Combobox } from "@/components/admin/Combobox";
 import { friendlyError } from "@/lib/friendly-error";
+import { ReviewStatus } from "@/components/admin/ReviewStatus";
+import { useReviewPhotoUpload } from "@/lib/review-photo";
 
 export const Route = createFileRoute("/_authenticated/kids")({
   component: KidsPage,
@@ -63,6 +65,9 @@ function KidsPage() {
   const [reviewFor, setReviewFor] = useState<{ assignmentId: string; kidId: string; bookId: string } | null>(null);
   const [reviewChapters, setReviewChapters] = useState("");
   const [reviewSummary, setReviewSummary] = useState("");
+  const [reviewFile, setReviewFile] = useState<File | null>(null);
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const uploadPhoto = useReviewPhotoUpload();
 
   const submitKid = () => {
     if (!name.trim()) return;
@@ -99,16 +104,25 @@ function KidsPage() {
     setEditing(null);
   };
 
-  const submitReview = () => {
-    if (!reviewFor || !reviewSummary.trim()) return;
-    api.addReview({
-      assignmentId: reviewFor.assignmentId,
-      kidId: reviewFor.kidId,
-      bookId: reviewFor.bookId,
-      chapterRange: reviewChapters || undefined,
-      summary: reviewSummary,
-    });
-    setReviewFor(null); setReviewChapters(""); setReviewSummary("");
+  const submitReview = async () => {
+    if (!reviewFor || !reviewSummary.trim() || reviewBusy) return;
+    setReviewBusy(true);
+    try {
+      const imageId = reviewFile ? await uploadPhoto(reviewFile) : undefined;
+      await api.addReview({
+        assignmentId: reviewFor.assignmentId,
+        kidId: reviewFor.kidId,
+        bookId: reviewFor.bookId,
+        chapterRange: reviewChapters || undefined,
+        summary: reviewSummary,
+        imageId,
+      });
+      setReviewFor(null); setReviewChapters(""); setReviewSummary(""); setReviewFile(null);
+    } catch (e) {
+      alert(friendlyError(e));
+    } finally {
+      setReviewBusy(false);
+    }
   };
 
   const normalisePhone = (raw: string): string | null => {
@@ -306,6 +320,7 @@ function KidsPage() {
                                       {new Date(r.createdAt).toLocaleDateString()}
                                       {r.sentToParentAt && ` · Sent to parent ${new Date(r.sentToParentAt).toLocaleDateString()}`}
                                     </p>
+                                    <ReviewStatus review={r} kidName={k.name} bookTitle={book?.title ?? ""} />
                                   </div>
                                   {k.parentPhone && (
                                     <Button
@@ -488,10 +503,15 @@ function KidsPage() {
               <Label className="mb-1.5 block">Summary / review</Label>
               <Textarea value={reviewSummary} onChange={(e) => setReviewSummary(e.target.value)} placeholder="What did they read? What did they think?" className="w-full min-h-[100px]" />
             </div>
+            <div>
+              <Label className="mb-1.5 block">Photo of the written review (optional)</Label>
+              <Input type="file" accept="image/*" onChange={(e) => setReviewFile(e.target.files?.[0] ?? null)} className="w-full" />
+              <p className="text-xs text-muted-foreground mt-1.5">The admin checks every review before it is published.</p>
+            </div>
           </div>
           <DialogFooter className="flex-wrap gap-2">
-            <Button variant="outline" onClick={() => setReviewFor(null)}>Cancel</Button>
-            <Button disabled={!reviewSummary.trim()} onClick={submitReview}>Save review</Button>
+            <Button variant="outline" onClick={() => { setReviewFor(null); setReviewFile(null); }}>Cancel</Button>
+            <Button disabled={!reviewSummary.trim() || reviewBusy} onClick={submitReview}>{reviewBusy ? "Sending..." : "Submit review"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
