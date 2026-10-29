@@ -16,12 +16,15 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ReviewTokenRouteImport } from './routes/review.$token'
 import { Route as ApproveTokenRouteImport } from './routes/approve.$token'
+import { Route as AdminTeachersRouteImport } from './routes/admin/teachers'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminReviewsRouteImport } from './routes/admin/reviews'
 import { Route as AdminReadingRouteImport } from './routes/admin/reading'
 import { Route as AdminProfileRouteImport } from './routes/admin/profile'
 import { Route as AdminPeopleRouteImport } from './routes/admin/people'
+import { Route as AdminKidsRouteImport } from './routes/admin/kids'
 import { Route as AdminFeesRouteImport } from './routes/admin/fees'
+import { Route as AdminBooksRouteImport } from './routes/admin/books'
 import { Route as AdminBirthdaysRouteImport } from './routes/admin/birthdays'
 import { Route as AdminApprovalsRouteImport } from './routes/admin/approvals'
 import { Route as AdminAnnouncementsRouteImport } from './routes/admin/announcements'
@@ -70,6 +73,11 @@ const ApproveTokenRoute = ApproveTokenRouteImport.update({
   path: '/approve/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminTeachersRoute = AdminTeachersRouteImport.update({
+  id: '/teachers',
+  path: '/teachers',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -95,9 +103,19 @@ const AdminPeopleRoute = AdminPeopleRouteImport.update({
   path: '/people',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminKidsRoute = AdminKidsRouteImport.update({
+  id: '/kids',
+  path: '/kids',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFeesRoute = AdminFeesRouteImport.update({
   id: '/fees',
   path: '/fees',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBooksRoute = AdminBooksRouteImport.update({
+  id: '/books',
+  path: '/books',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminBirthdaysRoute = AdminBirthdaysRouteImport.update({
@@ -184,12 +202,15 @@ export interface FileRoutesByFullPath {
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/birthdays': typeof AdminBirthdaysRoute
+  '/admin/books': typeof AdminBooksRoute
   '/admin/fees': typeof AdminFeesRoute
+  '/admin/kids': typeof AdminKidsRoute
   '/admin/people': typeof AdminPeopleRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/reading': typeof AdminReadingRoute
   '/admin/reviews': typeof AdminReviewsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/teachers': typeof AdminTeachersRoute
   '/approve/$token': typeof ApproveTokenRoute
   '/review/$token': typeof ReviewTokenRoute
   '/admin/': typeof AdminIndexRoute
@@ -210,12 +231,15 @@ export interface FileRoutesByTo {
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/birthdays': typeof AdminBirthdaysRoute
+  '/admin/books': typeof AdminBooksRoute
   '/admin/fees': typeof AdminFeesRoute
+  '/admin/kids': typeof AdminKidsRoute
   '/admin/people': typeof AdminPeopleRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/reading': typeof AdminReadingRoute
   '/admin/reviews': typeof AdminReviewsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/teachers': typeof AdminTeachersRoute
   '/approve/$token': typeof ApproveTokenRoute
   '/review/$token': typeof ReviewTokenRoute
   '/admin': typeof AdminIndexRoute
@@ -239,12 +263,15 @@ export interface FileRoutesById {
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/birthdays': typeof AdminBirthdaysRoute
+  '/admin/books': typeof AdminBooksRoute
   '/admin/fees': typeof AdminFeesRoute
+  '/admin/kids': typeof AdminKidsRoute
   '/admin/people': typeof AdminPeopleRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/reading': typeof AdminReadingRoute
   '/admin/reviews': typeof AdminReviewsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/teachers': typeof AdminTeachersRoute
   '/approve/$token': typeof ApproveTokenRoute
   '/review/$token': typeof ReviewTokenRoute
   '/admin/': typeof AdminIndexRoute
@@ -268,12 +295,15 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/approvals'
     | '/admin/birthdays'
+    | '/admin/books'
     | '/admin/fees'
+    | '/admin/kids'
     | '/admin/people'
     | '/admin/profile'
     | '/admin/reading'
     | '/admin/reviews'
     | '/admin/settings'
+    | '/admin/teachers'
     | '/approve/$token'
     | '/review/$token'
     | '/admin/'
@@ -294,12 +324,15 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/approvals'
     | '/admin/birthdays'
+    | '/admin/books'
     | '/admin/fees'
+    | '/admin/kids'
     | '/admin/people'
     | '/admin/profile'
     | '/admin/reading'
     | '/admin/reviews'
     | '/admin/settings'
+    | '/admin/teachers'
     | '/approve/$token'
     | '/review/$token'
     | '/admin'
@@ -322,12 +355,15 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/approvals'
     | '/admin/birthdays'
+    | '/admin/books'
     | '/admin/fees'
+    | '/admin/kids'
     | '/admin/people'
     | '/admin/profile'
     | '/admin/reading'
     | '/admin/reviews'
     | '/admin/settings'
+    | '/admin/teachers'
     | '/approve/$token'
     | '/review/$token'
     | '/admin/'
@@ -393,6 +429,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApproveTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/teachers': {
+      id: '/admin/teachers'
+      path: '/teachers'
+      fullPath: '/admin/teachers'
+      preLoaderRoute: typeof AdminTeachersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/settings': {
       id: '/admin/settings'
       path: '/settings'
@@ -428,11 +471,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPeopleRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/kids': {
+      id: '/admin/kids'
+      path: '/kids'
+      fullPath: '/admin/kids'
+      preLoaderRoute: typeof AdminKidsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/fees': {
       id: '/admin/fees'
       path: '/fees'
       fullPath: '/admin/fees'
       preLoaderRoute: typeof AdminFeesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/books': {
+      id: '/admin/books'
+      path: '/books'
+      fullPath: '/admin/books'
+      preLoaderRoute: typeof AdminBooksRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/birthdays': {
@@ -562,12 +619,15 @@ interface AdminRouteChildren {
   AdminAnnouncementsRoute: typeof AdminAnnouncementsRoute
   AdminApprovalsRoute: typeof AdminApprovalsRoute
   AdminBirthdaysRoute: typeof AdminBirthdaysRoute
+  AdminBooksRoute: typeof AdminBooksRoute
   AdminFeesRoute: typeof AdminFeesRoute
+  AdminKidsRoute: typeof AdminKidsRoute
   AdminPeopleRoute: typeof AdminPeopleRoute
   AdminProfileRoute: typeof AdminProfileRoute
   AdminReadingRoute: typeof AdminReadingRoute
   AdminReviewsRoute: typeof AdminReviewsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminTeachersRoute: typeof AdminTeachersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -576,12 +636,15 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAnnouncementsRoute: AdminAnnouncementsRoute,
   AdminApprovalsRoute: AdminApprovalsRoute,
   AdminBirthdaysRoute: AdminBirthdaysRoute,
+  AdminBooksRoute: AdminBooksRoute,
   AdminFeesRoute: AdminFeesRoute,
+  AdminKidsRoute: AdminKidsRoute,
   AdminPeopleRoute: AdminPeopleRoute,
   AdminProfileRoute: AdminProfileRoute,
   AdminReadingRoute: AdminReadingRoute,
   AdminReviewsRoute: AdminReviewsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
+  AdminTeachersRoute: AdminTeachersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

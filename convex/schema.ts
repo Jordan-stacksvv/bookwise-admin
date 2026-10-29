@@ -12,6 +12,10 @@ export default defineSchema({
     copies: v.number(),
     code: v.optional(v.string()),
     price: v.optional(v.number()), // replacement cost; falls back to the default damage fee
+    // A book a teacher adds waits for the admin. No status means live (admin-added and older books).
+    status: v.optional(v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected"))),
+    addedBy: v.optional(v.string()),
+    rejectedReason: v.optional(v.string()),
   }).index("by_code", ["code"]),
 
   bookIssues: defineTable({

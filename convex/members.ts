@@ -127,7 +127,7 @@ export const approve = mutation({
     create: v.optional(
       v.object({
         name: v.string(),
-        department: v.string(),
+        department: v.optional(v.string()),
         className: v.optional(v.string()),
         phone: v.optional(v.string()),
       }),
@@ -156,10 +156,9 @@ export const approve = mutation({
         const name = create.name.trim();
         if (!name) throw new ConvexError("Enter the teacher's name.");
         if (name.length > 80) throw new ConvexError("That name is too long.");
-        if (!create.department.trim()) throw new ConvexError("Choose a class.");
         link = await ctx.db.insert("teachers", {
           name,
-          department: create.department.trim(),
+          department: create.department?.trim() || "Unassigned", // the admin gives them a class later
           className: clean(create.className, 60),
           phone: clean(create.phone, 30),
           email: m.email,
@@ -215,5 +214,49 @@ export const removeAdmin = mutation({
     const rows = await ctx.db.query("admins").withIndex("by_user", (q) => q.eq("userId", userId)).collect();
     for (const r of rows) await ctx.db.delete(r._id);
     await logEvent(ctx, "admin.removed", `${await memberLabel(ctx, userId)} is no longer an admin`, { entity: "member", entityId: userId });
+  },
+});
+
+/**
+ * Approve many waiting people as teachers at once. Each one is linked to the teacher with the same email if
+ * there is one, otherwise a teacher record is created with no class yet (set it later on the Teachers page).
+ * People who asked to be admins are skipped: admin rights are always a deliberate, single approval.
+ */
+export const approveMany = mutation({
+  args: { userIds: v.array(v.string()) },
+  handler: async (ctx, { userIds }) => {
+    const who = await requireAdmin(ctx);
+    const by = who.name ?? who.email ?? "Admin";
+    const now = new Date().toISOString();
+    const [members, teachers, adminRows, requests] = await Promise.all([
+      ctx.db.query("members").collect(),
+      ctx.db.query("teachers").collect(),
+      ctx.db.query("admins").collect(),
+      ctx.db.query("adminRequests").collect(),
+    ]);
+    const taken = new Set(members.map((m) => m.teacherId).filter(Boolean) as string[]);
+    const wantsAdmin = new Set(requests.map((r) => r.userId));
+    const isAdmin = new Set([...adminRows.map((r) => r.userId), ...envIds()]);
+    let approved = 0;
+    let skipped = 0;
+    for (const userId of new Set(userIds)) {
+      const m = members.find((x) => x.userId === userId);
+      if (!m || m.status === "approved" || isAdmin.has(userId) || isAdmin.has(userId.toLowerCase())) continue;
+      if (m.status === "denied" || m.role === "admin" || wantsAdmin.has(userId)) {
+        skipped++;
+        continue;
+      }
+      const email = m.email?.trim().toLowerCase();
+      const match = email ? teachers.find((t) => t.email?.trim().toLowerCase() === email && !taken.has(t._id)) : undefined;
+      let link = match?._id;
+      if (!link) {
+        link = await ctx.db.insert("teachers", { name: clean(m.name, 80) ?? clean(m.email, 80) ?? "New teacher", department: "Unassigned", email: m.email });
+      }
+      taken.add(link);
+      await ctx.db.patch(m._id, { status: "approved", approvedAt: now, approvedBy: by, teacherId: link });
+      await logEvent(ctx, "member.approved", `Approved ${m.name ?? m.email ?? "someone"} as teacher`, { entity: "member", entityId: userId });
+      approved++;
+    }
+    return { approved, skipped };
   },
 });

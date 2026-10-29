@@ -172,3 +172,26 @@ export const publicByToken = query({
     };
   },
 });
+
+/** Admin: publish several waiting reviews at once. */
+export const approveMany = mutation({
+  args: { ids: v.array(v.id("bookReviews")) },
+  handler: async (ctx, { ids }) => {
+    const who = await requireAdmin(ctx);
+    let done = 0;
+    for (const id of new Set(ids)) {
+      const r = await ctx.db.get(id);
+      if (!r || r.status !== "pending") continue;
+      await ctx.db.patch(id, {
+        status: "approved",
+        shareToken: r.shareToken ?? newToken().slice(0, 32),
+        decidedAt: new Date().toISOString(),
+        decidedBy: who.name ?? who.email ?? "Admin",
+        rejectedReason: undefined,
+      });
+      await logEvent(ctx, "review.approved", `Review published: ${await kidBookLabel(ctx, r.kidId, r.bookId)}`, { entity: "review", entityId: id });
+      done++;
+    }
+    return { approved: done };
+  },
+});

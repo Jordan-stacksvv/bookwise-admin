@@ -1,6 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useClerk } from "@clerk/clerk-react";
-import { Cake, ClipboardCheck, Download, LayoutDashboard, LogOut, Megaphone, Menu, Settings, UserCircle, Users, Wallet, BookMarked, BookOpenCheck, ScrollText } from "lucide-react";
+import { Cake, ClipboardCheck, LayoutDashboard, Megaphone, Menu, Settings, Users, Wallet, BookMarked, BookOpenCheck, ScrollText, BookOpen, GraduationCap, UsersRound } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useMemo, useState, type ReactNode } from "react";
@@ -8,7 +7,7 @@ import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAdminAlerts } from "@/hooks/use-admin-alerts";
-import { useInstallPrompt } from "@/hooks/use-install-prompt";
+import { SidebarProfile } from "@/components/admin/SidebarProfile";
 import { birthdaysInMonth } from "@/lib/birthdays";
 import { isOverdue, loanStatus, useStore } from "@/lib/mock-store";
 
@@ -16,6 +15,9 @@ const NAV = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { to: "/admin/approvals", label: "Approvals", icon: ClipboardCheck, badge: "loans" },
   { to: "/admin/reviews", label: "Reviews", icon: BookOpenCheck, badge: "reviews" },
+  { to: "/admin/books", label: "Books", icon: BookOpen, badge: "books" },
+  { to: "/admin/kids", label: "Kids", icon: UsersRound },
+  { to: "/admin/teachers", label: "Teachers", icon: GraduationCap },
   { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
   { to: "/admin/reading", label: "Class reading", icon: BookMarked },
   { to: "/admin/birthdays", label: "Birthdays", icon: Cake },
@@ -23,26 +25,24 @@ const NAV = [
   { to: "/admin/activity", label: "Activity", icon: ScrollText },
   { to: "/admin/people", label: "People", icon: Users, badge: "people" },
   { to: "/admin/settings", label: "Settings", icon: Settings },
-  { to: "/admin/profile", label: "My profile", icon: UserCircle },
 ] as const;
 
-type Badges = { loans: number; reviews: number; people: number };
+type Badges = { loans: number; reviews: number; people: number; books: number };
 
 function NavList({ badges, email, onNavigate }: { badges: Badges; email: string | null; onNavigate?: () => void }) {
   const path = useRouterState({ select: (r) => r.location.pathname });
-  const { signOut } = useClerk();
-  const { canInstall, showIosHint, install } = useInstallPrompt();
+
 
   return (
     <>
-      <div className="px-5 py-5 flex items-center gap-3 border-b border-sidebar-border">
+      <div className="px-5 py-4 flex items-center gap-3 border-b border-sidebar-border">
         <img src={logo} alt="" width={40} height={40} className="rounded-md bg-white p-1" />
         <div className="leading-tight min-w-0">
           <p className="font-display text-base font-semibold">Book Club Admin</p>
           <p className="text-xs opacity-70 truncate">{email ?? "Madina Central"}</p>
         </div>
       </div>
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+      <nav className="flex-1 min-h-0 p-3 space-y-0.5 overflow-y-auto">
         {NAV.map((it) => {
           const p = path.replace(/\/+$/, "") || "/";
           const active = "exact" in it && it.exact ? p === it.to : p.startsWith(it.to);
@@ -52,7 +52,7 @@ function NavList({ badges, email, onNavigate }: { badges: Badges; email: string 
               key={it.to}
               to={it.to}
               onClick={onNavigate}
-              className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-all ${
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
                 active ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium shadow-sm" : "hover:bg-sidebar-accent"
               }`}
             >
@@ -64,26 +64,7 @@ function NavList({ badges, email, onNavigate }: { badges: Badges; email: string 
           );
         })}
       </nav>
-      <div className="p-3 border-t border-sidebar-border space-y-1" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
-        {canInstall && (
-          <button onClick={install} className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm hover:bg-sidebar-accent transition">
-            <Download className="h-4 w-4" /> Install admin app
-          </button>
-        )}
-        {showIosHint && <p className="px-3 py-2 text-xs opacity-70">To install: tap Share, then Add to Home Screen.</p>}
-        <a href="/dashboard" className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm hover:bg-sidebar-accent transition">
-          <LayoutDashboard className="h-4 w-4 opacity-0" /> Teacher app
-        </a>
-        <button
-          onClick={async () => {
-            await signOut();
-            window.location.href = "/admin";
-          }}
-          className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm hover:bg-sidebar-accent transition"
-        >
-          <LogOut className="h-4 w-4" /> Sign out
-        </button>
-      </div>
+      <SidebarProfile app="admin" onNavigate={onNavigate} />
     </>
   );
 }
@@ -108,15 +89,16 @@ export function AdminShell({ email, children }: { email: string | null; children
     loans: summary.waitingForAdmin,
     reviews: s.reviews.filter((r) => r.status === "pending").length,
     people: (members ?? []).filter((m) => m.access === "pending").length,
+    books: s.books.filter((b) => b.status === "pending").length,
   };
-  const totalWaiting = badges.loans + badges.reviews + badges.people;
+  const totalWaiting = badges.loans + badges.reviews + badges.people + badges.books;
 
   // Fires a local notification (once a day) if the admin turned alerts on in Settings.
   useAdminAlerts(s.kids.length || s.assignments.length ? summary : null);
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-      <aside className="hidden md:flex w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground h-screen sticky top-0">
+      <aside className="hidden md:flex w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground h-[100dvh] sticky top-0">
         <NavList badges={badges} email={email} />
       </aside>
       <main className="flex-1 min-w-0">
@@ -130,7 +112,7 @@ export function AdminShell({ email, children }: { email: string | null; children
           </div>
           <div className="flex items-center gap-1">
             {totalWaiting > 0 && (
-              <Link to={badges.people > 0 ? "/admin/people" : badges.loans > 0 ? "/admin/approvals" : "/admin/reviews"} className="min-w-6 h-6 px-1.5 rounded-full bg-destructive text-destructive-foreground text-xs font-semibold flex items-center justify-center">
+              <Link to={badges.people > 0 ? "/admin/people" : badges.loans > 0 ? "/admin/approvals" : badges.reviews > 0 ? "/admin/reviews" : "/admin/books"} className="min-w-6 h-6 px-1.5 rounded-full bg-destructive text-destructive-foreground text-xs font-semibold flex items-center justify-center">
                 {totalWaiting}
               </Link>
             )}

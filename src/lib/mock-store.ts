@@ -33,6 +33,9 @@ export type Book = {
   coverUrl?: string;
   copies: number;
   price?: number;
+  status?: "pending" | "approved" | "rejected"; // empty = live
+  addedBy?: string;
+  rejectedReason?: string;
   issues: BookIssue[];
 };
 

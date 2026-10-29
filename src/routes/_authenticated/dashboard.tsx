@@ -1,9 +1,10 @@
 ﻿import { createFileRoute, Link } from "@tanstack/react-router";
-import { useStore, useApi, isOverdue, isActive } from "@/lib/mock-store";
+import { useStore, useApi, isOverdue, isActive, loanStatus } from "@/lib/mock-store";
+import { ReviewDialog, type ReviewTarget } from "@/components/admin/ReviewDialog";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { BirthdayCard } from "@/components/admin/BirthdayCard";
 import { AdminNotices } from "@/components/admin/AdminNotices";
-import { BookOpen, Users, AlertTriangle, BookMarked, Plus, CalendarDays, GraduationCap, Search, RotateCcw } from "lucide-react";
+import { BookOpen, Users, AlertTriangle, BookMarked, Plus, CalendarDays, GraduationCap, Search, RotateCcw, BookOpenCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useEffect, useMemo, useState } from "react";
@@ -29,6 +30,7 @@ function Dashboard() {
   const s = useStore();
   const api = useApi();
   const [q, setQ] = useState("");
+  const [reviewFor, setReviewFor] = useState<ReviewTarget | null>(null);
   const [greeting, setGreeting] = useState(pickGreeting);
   const [now, setNow] = useState(() => new Date());
 
@@ -181,6 +183,7 @@ function Dashboard() {
         ))}
       </div>
 
+      <ReviewDialog target={reviewFor} onClose={() => setReviewFor(null)} />
       <AdminNotices />
       <BirthdayCard kids={s.kids} />
 
@@ -205,10 +208,15 @@ function Dashboard() {
                       {kid?.name} · {kid?.department} · due {dueLabel}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
                     <span className={`text-xs px-2.5 py-1 rounded-full ${od ? "bg-destructive/10 text-destructive" : "bg-accent/20 text-accent-foreground"}`}>
                       {od ? "Overdue" : "Active"}
                     </span>
+                    {loanStatus(a) === "approved" && (
+                      <Button size="sm" variant="outline" onClick={() => setReviewFor({ assignmentId: a.id, kidId: a.kidId, bookId: a.bookId, bookTitle: book?.title ?? "", kidName: kid?.name ?? "" })}>
+                        <BookOpenCheck className="h-3.5 w-3.5 mr-1.5" /> Review
+                      </Button>
+                    )}
                     <Button size="sm" variant="outline" onClick={() => api.returnBook(a.id)}>
                       <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> Return
                     </Button>

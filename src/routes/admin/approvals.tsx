@@ -8,6 +8,8 @@ import { Empty, fmtDate, fmtDateTime } from "@/components/admin-app/ui";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { BulkBar } from "@/components/admin-app/BulkBar";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +26,9 @@ function Approvals() {
   const s = useStore();
   const approve = useMutation(api.loans.adminApprove);
   const reject = useMutation(api.loans.adminReject);
+  const approveMany = useMutation(api.loans.adminApproveMany);
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
   const [tab, setTab] = useState<Tab>("admin");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [declineId, setDeclineId] = useState<string | null>(null);
@@ -67,6 +72,19 @@ function Approvals() {
   };
 
   const list = rows[tab];
+  const chosen = rows.admin.filter((r) => picked.has(r.a.id));
+  const toggle = (id: string) => setPicked((p) => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const approveChosen = async () => {
+    setBulkBusy(true);
+    try {
+      await approveMany({ ids: chosen.map((r) => r.a.id as Id<"assignments">) });
+      setPicked(new Set());
+    } catch (e) {
+      alert(friendlyError(e));
+    } finally {
+      setBulkBusy(false);
+    }
+  };
 
   return (
     <>
@@ -79,13 +97,19 @@ function Approvals() {
         </TabsList>
       </Tabs>
 
+      {tab === "admin" && rows.admin.length > 1 && (
+        <BulkBar total={rows.admin.length} selected={chosen.length} busy={bulkBusy} onToggleAll={() => setPicked(chosen.length === rows.admin.length ? new Set() : new Set(rows.admin.map((r) => r.a.id)))} onApprove={approveChosen} />
+      )}
+
       {list.length === 0 ? (
         <div className="bg-card rounded-xl border"><Empty>{tab === "admin" ? "Nothing waiting for you right now." : "Nothing here."}</Empty></div>
       ) : (
         <div className="space-y-3">
           {list.map(({ a, kid, book, teacher, status }) => (
             <div key={a.id} className="bg-card rounded-xl border p-4 space-y-3" style={{ boxShadow: "var(--shadow-soft)" }}>
-              <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
+              <div className="flex items-start gap-3">
+                {status === "pending_admin" && rows.admin.length > 1 && <Checkbox className="mt-1" checked={picked.has(a.id)} aria-label="Select this loan" onCheckedChange={() => toggle(a.id)} />}
+              <div className="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
                 <div className="min-w-0 flex-1">
                   <p className="font-medium break-words">{book?.title ?? "Unknown book"}</p>
                   <p className="text-sm text-muted-foreground">
@@ -94,6 +118,7 @@ function Approvals() {
                   {teacher && <p className="text-xs text-muted-foreground">Assigned by {teacher.name}</p>}
                 </div>
                 <StatusBadge status={status} />
+              </div>
               </div>
 
               {a.parentApprovedAt && (

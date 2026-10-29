@@ -153,3 +153,20 @@ export const setFeeStatus = mutation({
     await logEvent(ctx, "policy.fee_status", `Fee marked ${feeStatus}: ${await loanLabel(ctx, id)}`, { entity: "loan", entityId: id });
   },
 });
+
+/** Admin final approval for several loans at once (only those the parent has already approved). */
+export const adminApproveMany = mutation({
+  args: { ids: v.array(v.id("assignments")) },
+  handler: async (ctx, { ids }) => {
+    const who = await requireAdmin(ctx);
+    let done = 0;
+    for (const id of new Set(ids)) {
+      const a = await ctx.db.get(id);
+      if (!a || a.returnedAt || a.status !== "pending_admin") continue;
+      await ctx.db.patch(id, { status: "approved", adminApprovedAt: now(), adminApprovedBy: who.name ?? who.email ?? "Admin" });
+      await logEvent(ctx, "loan.admin_approved", `Final approval: ${await loanLabel(ctx, id)}`, { entity: "loan", entityId: id });
+      done++;
+    }
+    return { approved: done };
+  },
+});

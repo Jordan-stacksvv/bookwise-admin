@@ -22,17 +22,17 @@ import { Plus, Trash2, BookPlus, ChevronDown, RotateCcw, CheckCircle2, Circle, M
 import { Combobox } from "@/components/admin/Combobox";
 import { friendlyError } from "@/lib/friendly-error";
 import { ReviewStatus } from "@/components/admin/ReviewStatus";
-import { useReviewPhotoUpload } from "@/lib/review-photo";
+import { ReviewDialog, type ReviewTarget } from "@/components/admin/ReviewDialog";
 
 export const Route = createFileRoute("/_authenticated/kids")({
   component: KidsPage,
   validateSearch: (s: Record<string, unknown>) => ({ focus: typeof s.focus === "string" ? s.focus : undefined }),
 });
 
-function KidsPage() {
+export function KidsPage() {
   const s = useStore();
   const api = useApi();
-  const search = useSearch({ from: "/_authenticated/kids" });
+  const search = useSearch({ strict: false }) as { focus?: string };
   const [openAdd, setOpenAdd] = useState(false);
   const [name, setName] = useState("");
   const [birth, setBirth] = useState("");
@@ -62,12 +62,7 @@ function KidsPage() {
   const [assignBook, setAssignBook] = useState("");
   const [assignDue, setAssignDue] = useState("");
   const [confirmDel, setConfirmDel] = useState<{ id: string; name: string } | null>(null);
-  const [reviewFor, setReviewFor] = useState<{ assignmentId: string; kidId: string; bookId: string } | null>(null);
-  const [reviewChapters, setReviewChapters] = useState("");
-  const [reviewSummary, setReviewSummary] = useState("");
-  const [reviewFile, setReviewFile] = useState<File | null>(null);
-  const [reviewBusy, setReviewBusy] = useState(false);
-  const uploadPhoto = useReviewPhotoUpload();
+  const [reviewFor, setReviewFor] = useState<ReviewTarget | null>(null);
 
   const submitKid = () => {
     if (!name.trim()) return;
@@ -102,27 +97,6 @@ function KidsPage() {
       parentPhone: editParentPhone || undefined,
     });
     setEditing(null);
-  };
-
-  const submitReview = async () => {
-    if (!reviewFor || !reviewSummary.trim() || reviewBusy) return;
-    setReviewBusy(true);
-    try {
-      const imageId = reviewFile ? await uploadPhoto(reviewFile) : undefined;
-      await api.addReview({
-        assignmentId: reviewFor.assignmentId,
-        kidId: reviewFor.kidId,
-        bookId: reviewFor.bookId,
-        chapterRange: reviewChapters || undefined,
-        summary: reviewSummary,
-        imageId,
-      });
-      setReviewFor(null); setReviewChapters(""); setReviewSummary(""); setReviewFile(null);
-    } catch (e) {
-      alert(friendlyError(e));
-    } finally {
-      setReviewBusy(false);
-    }
   };
 
   const normalisePhone = (raw: string): string | null => {
@@ -303,7 +277,7 @@ function KidsPage() {
                                 size="sm"
                                 variant="outline"
                                 className="h-7 text-xs"
-                                onClick={() => setReviewFor({ assignmentId: a.id, kidId: k.id, bookId: a.bookId })}
+                                onClick={() => setReviewFor({ assignmentId: a.id, kidId: k.id, bookId: a.bookId, bookTitle: book?.title ?? "", kidName: k.name })}
                               >
                                 <BookOpenCheck className="h-3.5 w-3.5 mr-1" /> Add review
                               </Button>
@@ -491,30 +465,7 @@ function KidsPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!reviewFor} onOpenChange={(o) => !o && setReviewFor(null)}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Add a book review</DialogTitle></DialogHeader>
-          <div className="grid gap-3">
-            <div>
-              <Label className="mb-1.5 block">Chapters read (optional)</Label>
-              <Input value={reviewChapters} onChange={(e) => setReviewChapters(e.target.value)} placeholder="e.g. 1-4" className="w-full" />
-            </div>
-            <div>
-              <Label className="mb-1.5 block">Summary / review</Label>
-              <Textarea value={reviewSummary} onChange={(e) => setReviewSummary(e.target.value)} placeholder="What did they read? What did they think?" className="w-full min-h-[100px]" />
-            </div>
-            <div>
-              <Label className="mb-1.5 block">Photo of the written review (optional)</Label>
-              <Input type="file" accept="image/*" onChange={(e) => setReviewFile(e.target.files?.[0] ?? null)} className="w-full" />
-              <p className="text-xs text-muted-foreground mt-1.5">The admin checks every review before it is published.</p>
-            </div>
-          </div>
-          <DialogFooter className="flex-wrap gap-2">
-            <Button variant="outline" onClick={() => { setReviewFor(null); setReviewFile(null); }}>Cancel</Button>
-            <Button disabled={!reviewSummary.trim() || reviewBusy} onClick={submitReview}>{reviewBusy ? "Sending..." : "Submit review"}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ReviewDialog target={reviewFor} onClose={() => setReviewFor(null)} />
 
       <AlertDialog open={!!confirmDel} onOpenChange={(o) => !o && setConfirmDel(null)}>
         <AlertDialogContent>

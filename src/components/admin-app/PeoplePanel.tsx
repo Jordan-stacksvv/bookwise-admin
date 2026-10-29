@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { BulkBar } from "@/components/admin-app/BulkBar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { friendlyError } from "@/lib/friendly-error";
 import { useStore } from "@/lib/mock-store";
@@ -66,7 +68,7 @@ function ApproveTeacherDialog({ member, onClose }: { member: Member | null; onCl
         if (!link) throw new Error("Choose a teacher.");
         await approve({ userId: member.userId, as: "teacher", teacherId: link as Id<"teachers"> });
       } else {
-        await approve({ userId: member.userId, as: "teacher", create: { name, department: dept, phone: phone || undefined } });
+        await approve({ userId: member.userId, as: "teacher", create: { name, department: dept || undefined, phone: phone || undefined } });
       }
       setShownFor(null);
       onClose();
@@ -97,11 +99,12 @@ function ApproveTeacherDialog({ member, onClose }: { member: Member | null; onCl
               <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
             </div>
             <div>
-              <Label className="mb-1.5 block">Class / department</Label>
-              <Select value={dept} onValueChange={setDept}>
-                <SelectTrigger><SelectValue placeholder="Choose a class" /></SelectTrigger>
-                <SelectContent>{s.departments.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
+              <Label className="mb-1.5 block">Class / department (optional)</Label>
+              <Select value={dept || "none"} onValueChange={(v) => setDept(v === "none" ? "" : v)}>
+                <SelectTrigger><SelectValue placeholder="No class yet" /></SelectTrigger>
+                <SelectContent><SelectItem value="none">No class yet (assign later)</SelectItem>{s.departments.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground mt-1.5">They can sign in and use the app now. Give them a class later on the Teachers page.</p>
             </div>
             <div>
               <Label className="mb-1.5 block">Phone (optional)</Label>
@@ -121,7 +124,7 @@ function ApproveTeacherDialog({ member, onClose }: { member: Member | null; onCl
         {error && <p className="text-sm text-destructive">{error}</p>}
         <DialogFooter className="flex-col gap-2 sm:flex-row">
           <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button disabled={busy || (mode === "create" ? !name.trim() || !dept : !link)} onClick={submit}>{busy ? "Saving..." : "Approve teacher"}</Button>
+          <Button disabled={busy || (mode === "create" ? !name.trim() : !link)} onClick={submit}>{busy ? "Saving..." : "Approve teacher"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -132,11 +135,14 @@ export function PeoplePanel() {
   const members = useMembers();
   const requests = useQuery(api.admins.listRequests) ?? [];
   const approve = useMutation(api.members.approve);
+  const approveMany = useMutation(api.members.approveMany);
   const deny = useMutation(api.members.deny);
   const makeAdmin = useMutation(api.members.makeAdmin);
   const removeAdmin = useMutation(api.members.removeAdmin);
   const [q, setQ] = useState("");
   const [teacherFor, setTeacherFor] = useState<Member | null>(null);
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   const run = async (fn: () => Promise<unknown>) => {
     try {
@@ -152,11 +158,27 @@ export function PeoplePanel() {
     return (members ?? []).filter((m) => (m.access === "admin" || m.access === "approved") && (!s || (m.name ?? "").toLowerCase().includes(s) || (m.email ?? "").toLowerCase().includes(s)));
   }, [members, q]);
   const denied = (members ?? []).filter((m) => m.access === "denied");
+  const chosen = pending.filter((m) => picked.has(m.userId));
+  const approveChosen = async () => {
+    setBulkBusy(true);
+    try {
+      const res = await approveMany({ userIds: chosen.map((m) => m.userId) });
+      setPicked(new Set());
+      if (res.skipped > 0) alert(`${res.approved} approved. ${res.skipped} not approved (they asked to be an admin, or were removed). Approve those one by one.`);
+    } catch (e) {
+      alert(friendlyError(e));
+    } finally {
+      setBulkBusy(false);
+    }
+  };
   const hasAdminRequest = (userId: string) => requests.some((r) => r.userId === userId);
 
   return (
     <div className="space-y-6">
       <Panel title={`Waiting for approval (${pending.length})`}>
+        {pending.length > 1 && (
+          <BulkBar total={pending.length} selected={chosen.length} busy={bulkBusy} label="Approve as teachers" onToggleAll={() => setPicked(chosen.length === pending.length ? new Set() : new Set(pending.map((m) => m.userId)))} onApprove={approveChosen} />
+        )}
         {members === undefined ? (
           <div className="h-16 animate-pulse rounded-lg bg-muted" />
         ) : pending.length === 0 ? (
@@ -166,6 +188,9 @@ export function PeoplePanel() {
             {pending.map((m) => (
               <li key={m._id} className="py-3 space-y-2.5">
                 <div className="flex items-center gap-3">
+                  {pending.length > 1 && (
+                    <Checkbox checked={picked.has(m.userId)} aria-label={`Select ${m.name ?? "this person"}`} onCheckedChange={() => setPicked((p) => { const n = new Set(p); n.has(m.userId) ? n.delete(m.userId) : n.add(m.userId); return n; })} />
+                  )}
                   <Avatar m={m} />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium truncate">{m.name ?? "Unknown name"}</p>

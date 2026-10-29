@@ -11,9 +11,11 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Pencil, Trash2, Plus, BookPlus, Search, BookOpen, Upload, Tag, Building2, AlertCircle, X, Check } from "lucide-react";
+import { Pencil, Trash2, Plus, BookPlus, Search, BookOpen, Upload, Tag, Building2, AlertCircle, X, Check, MessageSquareText } from "lucide-react";
 import { Combobox } from "@/components/admin/Combobox";
 import { friendlyError } from "@/lib/friendly-error";
+import { useAdmin } from "@/hooks/use-admin";
+import { BookReviewsDialog } from "@/components/admin/BookReviewsDialog";
 
 export const Route = createFileRoute("/_authenticated/books")({
   component: BooksPage,
@@ -23,10 +25,10 @@ export const Route = createFileRoute("/_authenticated/books")({
 type BookForm = Omit<Book, "_id" | "id" | "issues">;
 const empty: BookForm = { code: "", title: "", author: "", category: "", ageRange: "", department: "", coverUrl: "", copies: 1 };
 
-function BooksPage() {
+export function BooksPage() {
   const s = useStore();
   const api = useApi();
-  const search = useSearch({ from: "/_authenticated/books" });
+  const search = useSearch({ strict: false }) as { focus?: string };
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("all");
   const [dept, setDept] = useState("all");
@@ -34,6 +36,8 @@ function BooksPage() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<BookForm>(empty);
   const [assignFor, setAssignFor] = useState<Book | null>(null);
+  const [reviewsFor, setReviewsFor] = useState<Book | null>(null);
+  const isAdmin = useAdmin().status === "admin";
   const [assignKid, setAssignKid] = useState("");
   const [kidQuery, setKidQuery] = useState("");
   const [assignDue, setAssignDue] = useState("");
@@ -180,6 +184,8 @@ function BooksPage() {
                             {b.code && <span className="font-mono">{b.code} · </span>}
                             {b.author}
                           </p>
+                          {b.status === "pending" && <p className="text-xs text-amber-600 dark:text-amber-400">Waiting for admin approval</p>}
+                          {b.status === "rejected" && <p className="text-xs text-destructive">Declined{b.rejectedReason ? `: ${b.rejectedReason}` : ""}. Edit it to send it again.</p>}
                         </div>
                         {b.issues.length > 0 && (
                           <AlertCircle className="h-3.5 w-3.5 text-destructive shrink-0" aria-label={`${b.issues.length} issue(s)`} />
@@ -198,7 +204,13 @@ function BooksPage() {
                     </td>
                     <td className="px-3 sm:px-4 py-3 text-right">
                       <div className="inline-flex gap-1">
-                        <Button size="sm" variant="ghost" disabled={avail === 0} onClick={() => { setAssignFor(b); setAssignKid(""); setKidQuery(""); setAssignDue(""); }}>
+                        <Button size="sm" variant="ghost" className="relative" aria-label="Reviews" onClick={() => setReviewsFor(b)}>
+                          <MessageSquareText className="h-4 w-4" />
+                          {s.reviews.some((r) => r.bookId === b.id && r.status === "approved") && (
+                            <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] leading-4 text-center">{s.reviews.filter((r) => r.bookId === b.id && r.status === "approved").length}</span>
+                          )}
+                        </Button>
+                        <Button size="sm" variant="ghost" disabled={avail === 0 || b.status === "pending" || b.status === "rejected"} onClick={() => { setAssignFor(b); setAssignKid(""); setKidQuery(""); setAssignDue(""); }}>
                           <BookPlus className="h-4 w-4" />
                         </Button>
                         <Button size="sm" variant="ghost" onClick={() => openEdit(b)}><Pencil className="h-4 w-4" /></Button>
@@ -221,6 +233,7 @@ function BooksPage() {
           <DialogHeader>
             <DialogTitle>{editing ? "Edit Book" : "Add a Book"}</DialogTitle>
           </DialogHeader>
+          {!editing && !isAdmin && <p className="text-sm text-muted-foreground -mt-1">New books are checked by the admin before they can be given out.</p>}
           <div className="grid gap-3">
             <div>
               <Label className="mb-1.5 block">Cover image</Label>
@@ -364,6 +377,8 @@ function BooksPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <BookReviewsDialog book={reviewsFor} onClose={() => setReviewsFor(null)} />
 
       <Dialog open={!!manageOpen} onOpenChange={(o) => !o && setManageOpen(null)}>
         <DialogContent>

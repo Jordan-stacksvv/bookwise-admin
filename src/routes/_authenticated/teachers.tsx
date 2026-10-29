@@ -30,10 +30,10 @@ export const Route = createFileRoute("/_authenticated/teachers")({
   validateSearch: (s: Record<string, unknown>) => ({ focus: typeof s.focus === "string" ? s.focus : undefined }),
 });
 
-function TeachersPage() {
+export function TeachersPage() {
   const s = useStore();
   const api = useApi();
-  const search = useSearch({ from: "/_authenticated/teachers" });
+  const search = useSearch({ strict: false }) as { focus?: string };
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Teacher | null>(null);
   const [form, setForm] = useState({ name: "", department: "", className: "", phone: "", email: "" });
@@ -53,7 +53,8 @@ function TeachersPage() {
       if (!map.has(t.department)) map.set(t.department, []);
       map.get(t.department)!.push(t);
     }
-    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+    // Teachers with no class yet come first so they are easy to assign.
+    return Array.from(map.entries()).sort((a, b) => (a[0] === "Unassigned" ? -1 : b[0] === "Unassigned" ? 1 : a[0].localeCompare(b[0])));
   }, [s.teachers]);
 
   const openNew = () => {
@@ -68,9 +69,10 @@ function TeachersPage() {
   };
 
   const submit = () => {
-    if (!form.name.trim() || !form.department.trim()) return;
-    if (editing) api.editTeacher(editing.id, form);
-    else api.addTeacher(form);
+    if (!form.name.trim()) return;
+    const data = { ...form, department: form.department.trim() || "Unassigned" }; // a class can be set later
+    if (editing) api.editTeacher(editing.id, data);
+    else api.addTeacher(data);
     setOpen(false);
   };
 
@@ -179,7 +181,7 @@ function TeachersPage() {
               />
             </div>
             <div>
-              <Label className="mb-1.5 block">Department / class</Label>
+              <Label className="mb-1.5 block">Department / class (optional, can be set later)</Label>
               <Combobox
                 value={form.department}
                 onChange={(v) => setForm({ ...form, department: v })}

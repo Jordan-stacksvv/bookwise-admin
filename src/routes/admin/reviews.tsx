@@ -7,6 +7,8 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { Empty, fmtDate } from "@/components/admin-app/ui";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { BulkBar } from "@/components/admin-app/BulkBar";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +26,9 @@ function AdminReviews() {
   const s = useStore();
   const approve = useMutation(api.reviews.approve);
   const reject = useMutation(api.reviews.reject);
+  const approveMany = useMutation(api.reviews.approveMany);
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
   const [tab, setTab] = useState<Tab>("pending");
   const [declineId, setDeclineId] = useState<string | null>(null);
   const [reason, setReason] = useState("");
@@ -64,6 +69,19 @@ function AdminReviews() {
   };
 
   const list = rows[tab];
+  const chosen = rows.pending.filter((x) => picked.has(x.r.id));
+  const toggle = (id: string) => setPicked((p) => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const approveChosen = async () => {
+    setBulkBusy(true);
+    try {
+      await approveMany({ ids: chosen.map((x) => x.r._id as Id<"bookReviews">) });
+      setPicked(new Set());
+    } catch (e) {
+      alert(friendlyError(e));
+    } finally {
+      setBulkBusy(false);
+    }
+  };
 
   return (
     <>
@@ -76,19 +94,26 @@ function AdminReviews() {
         </TabsList>
       </Tabs>
 
+      {tab === "pending" && rows.pending.length > 1 && (
+        <BulkBar total={rows.pending.length} selected={chosen.length} busy={bulkBusy} label="Publish selected" onToggleAll={() => setPicked(chosen.length === rows.pending.length ? new Set() : new Set(rows.pending.map((x) => x.r.id)))} onApprove={approveChosen} />
+      )}
+
       {list.length === 0 ? (
         <div className="bg-card rounded-xl border"><Empty>{tab === "pending" ? "No reviews waiting for you." : "Nothing here."}</Empty></div>
       ) : (
         <div className="space-y-3">
           {list.map(({ r, kid, book }) => (
             <article key={r.id} className="bg-card rounded-xl border p-4 space-y-3" style={{ boxShadow: "var(--shadow-soft)" }}>
-              <div>
+              <div className="flex items-start gap-3">
+                {tab === "pending" && rows.pending.length > 1 && <Checkbox className="mt-1" checked={picked.has(r.id)} aria-label="Select this review" onCheckedChange={() => toggle(r.id)} />}
+              <div className="min-w-0 flex-1">
                 <p className="font-display font-semibold break-words">{book?.title ?? "Unknown book"}</p>
                 <p className="text-xs text-muted-foreground">
                   {kid?.name ?? "Unknown kid"} · {kid?.department} · {fmtDate(r.submittedAt ?? r.createdAt)}
                   {r.chapterRange ? ` · Chapters ${r.chapterRange}` : ""}
                 </p>
                 <p className="text-xs text-muted-foreground">Public name: <b>{kid ? shortName(kid.name) : "-"}</b> (first name and last initial only)</p>
+              </div>
               </div>
               {r.imageUrl && (
                 <a href={r.imageUrl} target="_blank" rel="noreferrer">

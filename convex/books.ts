@@ -1,6 +1,7 @@
 import { mutation, query } from "./secure";
 import { v, ConvexError } from "convex/values";
 import { logEvent } from "./activity";
+import { getAdmin, requireAdmin } from "./adminAuth";
 
 export const list = query({
   args: {},
@@ -32,8 +33,11 @@ export const add = mutation({
       const dup = await ctx.db.query("books").withIndex("by_code", (q) => q.eq("code", code)).first();
       if (dup) throw new ConvexError(`Book code "${code}" is already used by "${dup.title}".`);
     }
-    const id = await ctx.db.insert("books", code ? { ...rest, code } : rest);
-    await logEvent(ctx, "book.add", `Added book "${args.title}"${code ? ` (${code})` : ""}`, { entity: "book", entityId: id });
+    const who = await getAdmin(ctx);
+    const base = code ? { ...rest, code } : rest;
+    // Admin-added books are live at once. A teacher's new book waits for the admin.
+    const id = await ctx.db.insert("books", who.isAdmin ? base : { ...base, status: "pending" as const, addedBy: who.name ?? who.email ?? "A teacher" });
+    await logEvent(ctx, "book.add", `Added book "${args.title}"${code ? ` (${code})` : ""}${who.isAdmin ? "" : ", waiting for admin approval"}`, { entity: "book", entityId: id });
     return id;
   },
 });
@@ -59,7 +63,11 @@ export const edit = mutation({
       }
       updates.code = code || undefined; // empty string clears the code
     }
-    await ctx.db.patch(id, updates);
+    const before = await ctx.db.get(id);
+    const editor = await getAdmin(ctx);
+    // A teacher fixing a declined book sends it back for approval.
+    const resubmit = !editor.isAdmin && before?.status === "rejected";
+    await ctx.db.patch(id, resubmit ? { ...updates, status: "pending" as const, rejectedReason: undefined } : updates);
     const edited = await ctx.db.get(id);
     await logEvent(ctx, "book.edit", `Edited book "${edited?.title ?? "unknown"}"`, { entity: "book", entityId: id });
   },
@@ -95,5 +103,46 @@ export const removeIssue = mutation({
   handler: async (ctx, { issueId }) => {
     await ctx.db.delete(issueId);
     await logEvent(ctx, "book.issue_removed", "Cleared a reported book problem", { entity: "book" });
+  },
+});
+
+/** Admin: let a teacher's book go live. */
+export const approve = mutation({
+  args: { id: v.id("books") },
+  handler: async (ctx, { id }) => {
+    await requireAdmin(ctx);
+    const b = await ctx.db.get(id);
+    if (!b) throw new ConvexError("Book not found.");
+    await ctx.db.patch(id, { status: "approved" as const, rejectedReason: undefined });
+    await logEvent(ctx, "book.approved", `Approved book "${b.title}"`, { entity: "book", entityId: id });
+  },
+});
+
+/** Admin: approve several waiting books in one go. */
+export const approveMany = mutation({
+  args: { ids: v.array(v.id("books")) },
+  handler: async (ctx, { ids }) => {
+    await requireAdmin(ctx);
+    let done = 0;
+    for (const id of new Set(ids)) {
+      const b = await ctx.db.get(id);
+      if (!b || (b.status !== "pending" && b.status !== "rejected")) continue;
+      await ctx.db.patch(id, { status: "approved" as const, rejectedReason: undefined });
+      await logEvent(ctx, "book.approved", `Approved book "${b.title}"`, { entity: "book", entityId: id });
+      done++;
+    }
+    return { approved: done };
+  },
+});
+
+/** Admin: decline a teacher's book, with a reason the teacher can see. */
+export const reject = mutation({
+  args: { id: v.id("books"), reason: v.optional(v.string()) },
+  handler: async (ctx, { id, reason }) => {
+    await requireAdmin(ctx);
+    const b = await ctx.db.get(id);
+    if (!b) throw new ConvexError("Book not found.");
+    await ctx.db.patch(id, { status: "rejected" as const, rejectedReason: reason?.trim().slice(0, 200) || undefined });
+    await logEvent(ctx, "book.declined", `Declined book "${b.title}"${reason?.trim() ? `: ${reason.trim().slice(0, 100)}` : ""}`, { entity: "book", entityId: id });
   },
 });
