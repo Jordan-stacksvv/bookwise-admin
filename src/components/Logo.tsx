@@ -1,14 +1,14 @@
-import { BookOpen } from "lucide-react";
+import logo from "@/assets/logo.png";
 
-/** The app mark: a flat tile with a book glyph. Scales with `size` (px). */
-export function Logo({ size = 36, className = "" }: { size?: number; className?: string }) {
-  return (
-    <span
-      aria-hidden
-      className={`inline-grid shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground ${className}`}
-      style={{ width: size, height: size }}
-    >
-      <BookOpen strokeWidth={1.75} style={{ width: size * 0.55, height: size * 0.55 }} />
-    </span>
-  );
+/** The church book club logo. `className` sets the corners and any white tile behind it. */
+export function Logo({
+  size = 36,
+  className = "rounded-md",
+  alt = "",
+}: {
+  size?: number;
+  className?: string;
+  alt?: string;
+}) {
+  return <img src={logo} alt={alt} width={size} height={size} className={`shrink-0 ${className}`} />;
 }

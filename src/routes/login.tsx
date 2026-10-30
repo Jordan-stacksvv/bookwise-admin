@@ -35,14 +35,14 @@ const clerkAppearance = {
     colorBackground: "#ffffff",
     colorInputBackground: "#ffffff",
     fontFamily: '"Inter", system-ui, sans-serif',
-    borderRadius: "0.5rem",
+    borderRadius: "0.75rem",
   },
   elements: {
     rootBox: { width: "100%" },
     card: { boxShadow: "none", border: "none", background: "transparent", padding: 0, width: "100%" },
     cardBox: { boxShadow: "none", border: "none", width: "100%" },
     header: { display: "none" },
-    socialButtonsBlockButton: { height: "2.9rem", border: "1px solid #e2e8f0", boxShadow: "none" },
+    socialButtonsBlockButton: { height: "2.9rem", border: "1px solid #e4dfd2", boxShadow: "none" },
     formFieldInput: { height: "2.9rem", boxShadow: "none" },
     formButtonPrimary: { height: "2.9rem", boxShadow: "none", textTransform: "none", fontSize: "0.9rem" },
     footer: { background: "transparent" },
@@ -54,13 +54,13 @@ function RoleCard({ icon: Icon, title, text, onClick }: { icon: typeof BookOpen;
   return (
     <button
       onClick={onClick}
-      className="group w-full text-left flex items-center gap-4 rounded-xl border bg-card p-4 transition hover:border-primary/60 hover:bg-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group w-full text-left flex items-center gap-4 rounded-2xl border bg-card p-4 sm:p-5 transition hover:border-primary hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <span className="h-10 w-10 shrink-0 rounded-lg bg-primary/10 text-primary flex items-center justify-center transition">
-        <Icon className="h-5 w-5" />
+      <span className="h-12 w-12 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition">
+        <Icon className="h-6 w-6" />
       </span>
       <span className="min-w-0">
-        <span className="block text-base font-semibold">{title}</span>
+        <span className="block font-display text-lg font-semibold">{title}</span>
         <span className="block text-sm text-muted-foreground">{text}</span>
       </span>
     </button>
@@ -142,16 +142,26 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background" style={{ paddingTop: "env(safe-area-inset-top)" }}>
-      <header className="px-6 pt-6 flex items-center gap-3">
-        <Logo size={36} />
-        <div className="leading-tight">
-          <p className="text-sm font-semibold">Madina Central</p>
-          <p className="text-xs text-muted-foreground">SDA Book Club</p>
+    <div className="min-h-screen grid lg:grid-cols-2 bg-background">
+      <div className="hidden lg:flex flex-col justify-between p-12 text-sidebar-foreground" style={{ background: "var(--gradient-hero)" }}>
+        <div className="flex items-center gap-3">
+          <Logo size={48} alt="SDA logo" className="rounded-lg bg-white/95 p-1.5" />
+          <div>
+            <p className="font-display text-lg font-semibold">Madina Central</p>
+            <p className="text-sm opacity-75">SDA Church Book Club</p>
+          </div>
         </div>
-      </header>
-      <main className="flex-1 flex items-center justify-center px-6 py-8">{body}</main>
-      <AppFooter />
+        <p className="text-xs opacity-60">© {new Date().getFullYear()} Madina Central SDA Church</p>
+      </div>
+
+      <div className="flex flex-col min-h-screen" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+        <div className="lg:hidden flex items-center gap-3 px-6 pt-6">
+          <Logo size={40} alt="SDA" />
+          <p className="font-display font-semibold">Madina Central Book Club</p>
+        </div>
+        <div className="flex-1 flex items-center justify-center px-6 py-8">{body}</div>
+        <AppFooter />
+      </div>
     </div>
   );
 }

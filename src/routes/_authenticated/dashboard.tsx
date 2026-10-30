@@ -143,11 +143,21 @@ function Dashboard() {
           <Link
             key={st.label}
             to={st.to}
-            className="bg-card rounded-xl p-4 border hover:border-primary/40 transition-colors last:col-span-2 sm:last:col-span-1"
+            className="bg-card rounded-xl p-4 sm:p-5 border hover:border-primary/40 transition-colors last:col-span-2 sm:last:col-span-1"
             style={{ boxShadow: "var(--shadow-soft)" }}
           >
-            <p className="text-xs sm:text-sm text-muted-foreground">{st.label}</p>
-            <p className={`mt-1 text-2xl sm:text-3xl font-semibold tabular-nums ${st.tone === "destructive" && st.value > 0 ? "text-destructive" : ""}`}>{st.value}</p>          </Link>
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <p className="text-xs sm:text-sm text-muted-foreground">{st.label}</p>
+              <div className={`h-8 w-8 sm:h-9 sm:w-9 rounded-lg flex items-center justify-center shrink-0 ${
+                st.tone === "accent" ? "bg-accent/20 text-accent-foreground" :
+                st.tone === "destructive" ? "bg-destructive/10 text-destructive" :
+                "bg-primary/10 text-primary"
+              }`}>
+                <st.icon className="h-4 w-4" />
+              </div>
+            </div>
+            <p className="text-2xl sm:text-3xl font-display font-semibold">{st.value}</p>
+          </Link>
         ))}
       </div>
 
@@ -177,7 +187,7 @@ function Dashboard() {
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 shrink-0">
-                    <span className={`text-xs px-2.5 py-1 rounded-full ${od ? "bg-destructive/10 text-destructive" : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"}`}>
+                    <span className={`text-xs px-2.5 py-1 rounded-full ${od ? "bg-destructive/10 text-destructive" : "bg-accent/20 text-accent-foreground"}`}>
                       {od ? "Overdue" : "Active"}
                     </span>
                     {loanStatus(a) === "approved" && (
@@ -208,7 +218,7 @@ function Dashboard() {
                     <span className="text-muted-foreground">{count}</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
+                    <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );
@@ -230,7 +240,7 @@ function Dashboard() {
                     <span className="text-xs font-semibold text-muted-foreground w-4">{i + 1}</span>
                     <p className="text-sm font-medium truncate">{book!.title}</p>
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">{count}×</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-accent/20 text-accent-foreground shrink-0">{count}×</span>
                 </div>
               ))}
             </div>
@@ -252,7 +262,7 @@ function Dashboard() {
                       <p className="text-xs text-muted-foreground truncate">{kid!.department}</p>
                     </div>
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">{count} book{count === 1 ? "" : "s"}</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-accent/20 text-accent-foreground shrink-0">{count} book{count === 1 ? "" : "s"}</span>
                 </div>
               ))}
             </div>

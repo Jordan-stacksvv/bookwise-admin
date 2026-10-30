@@ -20,7 +20,7 @@ function Centered({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 bg-background gap-6" style={{ paddingTop: "max(2rem, env(safe-area-inset-top))" }}>
       <div className="flex items-center gap-3">
-        <Logo size={44} />
+        <Logo size={44} className="rounded-lg" />
         <div className="leading-tight">
           <p className="font-display font-semibold">Book Club Admin</p>
           <p className="text-xs text-muted-foreground">Madina Central SDA Church</p>

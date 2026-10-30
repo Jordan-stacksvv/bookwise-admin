@@ -22,7 +22,7 @@ export function AdminNotices() {
     <div className="bg-card rounded-xl border p-4 sm:p-6 mb-6" style={{ boxShadow: "var(--shadow-soft)" }}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h3 className="font-display text-lg font-semibold flex items-center gap-2">
-          <Megaphone className="h-5 w-5 text-primary" /> From the admin
+          <Megaphone className="h-5 w-5 text-accent-foreground" /> From the admin
         </h3>
         <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
           {["all", ...s.departments].map((c) => (

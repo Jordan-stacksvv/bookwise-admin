@@ -37,7 +37,7 @@ function NavList({ badges, email, onNavigate }: { badges: Badges; email: string 
   return (
     <>
       <div className="px-5 py-4 flex items-center gap-3 border-b border-sidebar-border">
-        <Logo size={40} />
+        <Logo size={40} className="rounded-md bg-white p-1" />
         <div className="leading-tight min-w-0">
           <p className="font-display text-base font-semibold">Book Club Admin</p>
           <p className="text-xs opacity-70 truncate">{email ?? "Madina Central"}</p>
@@ -54,7 +54,7 @@ function NavList({ badges, email, onNavigate }: { badges: Badges; email: string 
               to={it.to}
               onClick={onNavigate}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
-                active ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium" : "hover:bg-sidebar-accent"
+                active ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium shadow-sm" : "hover:bg-sidebar-accent"
               }`}
             >
               <Icon className="h-4 w-4" /> <span className="flex-1">{it.label}</span>
@@ -99,7 +99,7 @@ export function AdminShell({ email, children }: { email: string | null; children
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-      <aside className="hidden md:flex w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border h-[100dvh] sticky top-0">
+      <aside className="hidden md:flex w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground h-[100dvh] sticky top-0">
         <NavList badges={badges} email={email} />
       </aside>
       <main className="flex-1 min-w-0">
@@ -108,7 +108,7 @@ export function AdminShell({ email, children }: { email: string | null; children
           style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <Logo size={32} />
+            <Logo size={32} className="rounded bg-white p-0.5" />
             <p className="font-display text-sm font-semibold truncate">Book Club Admin</p>
           </div>
           <div className="flex items-center gap-1">

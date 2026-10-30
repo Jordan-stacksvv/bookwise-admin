@@ -199,7 +199,7 @@ export function BooksPage() {
                       <span className="tabular-nums">{avail}/{b.copies}</span>
                     </td>
                     <td className="px-3 sm:px-4 py-3 hidden sm:table-cell">
-                      <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${b.status === "pending" ? "bg-amber-500/10 text-amber-700 dark:text-amber-400" : b.status === "rejected" ? "bg-destructive/10 text-destructive" : avail > 0 ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
+                      <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${b.status === "pending" ? "bg-amber-500/10 text-amber-700 dark:text-amber-400" : b.status === "rejected" ? "bg-destructive/10 text-destructive" : avail > 0 ? "bg-accent/20 text-accent-foreground" : "bg-muted text-muted-foreground"}`}>
                         {b.status === "pending" ? "Pending" : b.status === "rejected" ? "Declined" : avail > 0 ? "Available" : "All out"}
                       </span>
                     </td>

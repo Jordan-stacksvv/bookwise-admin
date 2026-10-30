@@ -270,11 +270,11 @@ function CalendarPage() {
                   onClick={() => (due.length > 0 || bd.length > 0) && setOpenDay({ y: view.y, m: view.m, d })}
                   className={`aspect-square rounded-lg p-1.5 border text-left text-xs flex flex-col transition ${
                     isToday
-                      ? "border-primary/50 bg-primary/5"
+                      ? "border-accent bg-accent/10"
                       : "border-transparent hover:border-border"
                   } ${due.length > 0 || bd.length > 0 ? "cursor-pointer hover:bg-muted/40" : "cursor-default"}`}
                 >
-                  <span className={`font-medium ${isToday ? "text-primary" : ""}`}>
+                  <span className={`font-medium ${isToday ? "text-accent-foreground" : ""}`}>
                     {d}
                   </span>
                   <div className="mt-auto space-y-0.5 w-full">
@@ -402,7 +402,7 @@ function CalendarPage() {
                           ? "bg-muted text-muted-foreground"
                           : od
                             ? "bg-destructive/10 text-destructive"
-                            : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                            : "bg-accent/20 text-accent-foreground"
                       }`}
                     >
                       {a.returnedAt ? "Returned" : od ? "Overdue" : "Active"}

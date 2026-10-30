@@ -218,7 +218,7 @@ export function KidsPage() {
                             <div className="flex items-center gap-2">
                               <span className={`text-xs px-2 py-0.5 rounded-full ${
                                 a.returnedAt ? "bg-muted text-muted-foreground" :
-                                od ? "bg-destructive/10 text-destructive" : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                                od ? "bg-destructive/10 text-destructive" : "bg-accent/20 text-accent-foreground"
                               }`}>
                                 {a.returnedAt ? "Returned" : od ? "Overdue" : "Active"}
                               </span>

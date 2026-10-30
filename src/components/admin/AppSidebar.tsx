@@ -23,7 +23,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
       <div className="px-5 py-4 flex items-center gap-3 border-b border-sidebar-border">
-        <Logo size={40} />
+        <Logo size={40} alt="SDA" className="rounded-md bg-white p-1" />
         <div className="leading-tight">
           <p className="font-display text-base font-semibold">Madina Central</p>
           <p className="text-xs opacity-70">SDA Book Club</p>
@@ -40,7 +40,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
               onClick={onNavigate}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
                 active
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium shadow-sm"
                   : "hover:bg-sidebar-accent"
               }`}
             >
@@ -56,7 +56,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
 
 export function AppSidebar() {
   return (
-    <aside className="hidden md:flex w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border h-[100dvh] sticky top-0">
+    <aside className="hidden md:flex w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground h-[100dvh] sticky top-0">
       <NavList />
     </aside>
   );
@@ -67,7 +67,7 @@ export function MobileTopBar() {
   return (
     <div className="md:hidden sticky top-0 z-30 flex items-center justify-between px-4 pb-3 bg-sidebar text-sidebar-foreground border-b border-sidebar-border" style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}>
       <div className="flex items-center gap-2">
-        <Logo size={32} />
+        <Logo size={32} alt="SDA" className="rounded bg-white p-0.5" />
         <p className="font-display text-sm font-semibold">Madina Central</p>
       </div>
       <Sheet open={open} onOpenChange={setOpen}>

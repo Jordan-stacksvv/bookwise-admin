@@ -90,7 +90,7 @@ Every important action calls `logEvent` in `convex/activity.ts` after the change
 
 ## Design
 
-The look is set by tokens in `src/styles.css`: one navy primary colour, neutral greys, a white sidebar with hairline borders, 8px radius, no heavy shadows, and Inter for all text. Status colours are used only for meaning (green for available or active, red for overdue or destructive, amber for waiting). The logo is a plain mark in `src/components/Logo.tsx`. Avoid adding explanatory subtitles under page titles; the title and the controls should be enough.
+The look is set by tokens in `src/styles.css`: a warm cream background, deep navy text and sidebar, a gold accent, 12px radius, soft shadows, Fraunces for headings and Inter for body text. Status colours are used only for meaning (gold for available or active, red for overdue or destructive, amber for waiting). The church logo is `src/assets/logo.png`, shown through `src/components/Logo.tsx`. Avoid adding greetings, emojis or explanatory subtitles under page titles; the title and the controls should be enough.
 
 ## Shipping changes with patches
 
@@ -108,6 +108,7 @@ Each `patches/NN-name.cjs` edits files by exact anchors, supports `--dry`, write
 | 14 | Teachers with no class, admin Books/Kids/Teachers pages, teacher-added books need approval, approve many |
 | 15 | Visual polish: flat neutral look, plain logo and icons, no helper text, phone layout fixes |
 | 16 | Batch import and the HTTP endpoint |
+| 17 | Original colours, fonts, church logo and app icons restored; the cleanup stays. Detailed README |
 
 ## Known limits
 
