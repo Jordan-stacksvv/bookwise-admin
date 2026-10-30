@@ -96,10 +96,11 @@ function LoginPage() {
       <div className="w-full max-w-md space-y-5">
         <div>
           <h1 className="font-display text-2xl sm:text-3xl font-semibold">{isSignedIn ? `Welcome back${user?.firstName ? ", " + user.firstName : ""}` : "Who are you?"}</h1>
+          <p className="text-sm text-muted-foreground mt-1">Choose how you want to use the book club.</p>
         </div>
         <div className="space-y-3">
-          <RoleCard icon={GraduationCap} title="I'm a teacher" text="Books, kids and reviews" onClick={() => choose("teacher")} />
-          <RoleCard icon={ShieldCheck} title="I'm an admin" text="Approvals, reports and settings" onClick={() => choose("admin")} />
+          <RoleCard icon={GraduationCap} title="I'm a teacher" text="Assign books, track reading and manage kids." onClick={() => choose("teacher")} />
+          <RoleCard icon={ShieldCheck} title="I'm an admin" text="Approvals, analytics, announcements and fees." onClick={() => choose("admin")} />
         </div>
         {isSignedIn && (
           <button className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-2" onClick={() => signOut().then(() => window.location.assign("/login"))}>
@@ -121,7 +122,7 @@ function LoginPage() {
           </p>
           <h1 className="font-display text-2xl sm:text-3xl font-semibold mt-3">{mode === "signin" ? "Welcome back" : "Create your account"}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {mode === "signin" ? "Sign in to continue." : "An admin approves new accounts."}
+            {mode === "signin" ? "Sign in to continue." : role === "admin" ? "An existing admin will approve your access." : "It only takes a minute."}
           </p>
         </div>
 
@@ -150,6 +151,11 @@ function LoginPage() {
             <p className="font-display text-lg font-semibold">Madina Central</p>
             <p className="text-sm opacity-75">SDA Church Book Club</p>
           </div>
+        </div>
+        <div className="space-y-4 max-w-md">
+          <BookOpen className="h-10 w-10 opacity-80" />
+          <h2 className="font-display text-4xl leading-tight">Nurturing young minds, one chapter at a time.</h2>
+          <p className="opacity-80 text-sm leading-relaxed">Track every book, every reader and every return, from one simple place built for the church library.</p>
         </div>
         <p className="text-xs opacity-60">© {new Date().getFullYear()} Madina Central SDA Church</p>
       </div>
