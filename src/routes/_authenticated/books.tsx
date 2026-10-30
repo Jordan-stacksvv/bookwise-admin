@@ -38,6 +38,7 @@ export function BooksPage() {
   const [assignFor, setAssignFor] = useState<Book | null>(null);
   const [reviewsFor, setReviewsFor] = useState<Book | null>(null);
   const isAdmin = useAdmin().status === "admin";
+  const hasCovers = s.books.some((b) => b.coverUrl);
   const [assignKid, setAssignKid] = useState("");
   const [kidQuery, setKidQuery] = useState("");
   const [assignDue, setAssignDue] = useState("");
@@ -114,7 +115,6 @@ export function BooksPage() {
     <div>
       <PageHeader
         title="Books"
-        subtitle="Manage your collection — add, edit, or assign."
         actions={
           <>
             <Button variant="outline" size="sm" onClick={() => { setManageOpen("category"); setNewValue(""); }}>
@@ -150,15 +150,15 @@ export function BooksPage() {
 
       <div className="bg-card border rounded-xl overflow-hidden" style={{ boxShadow: "var(--shadow-soft)" }}>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-160">
+          <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="px-3 sm:px-4 py-3 font-medium w-14">Cover</th>
+                <th className={`px-3 sm:px-4 py-3 font-medium w-14 ${hasCovers ? "hidden sm:table-cell" : "hidden"}`}>Cover</th>
                 <th className="px-3 sm:px-4 py-3 font-medium">Title</th>
                 <th className="px-3 sm:px-4 py-3 font-medium hidden md:table-cell">Category</th>
                 <th className="px-3 sm:px-4 py-3 font-medium hidden lg:table-cell">Dept.</th>
-                <th className="px-3 sm:px-4 py-3 font-medium">Copies</th>
-                <th className="px-3 sm:px-4 py-3 font-medium">Status</th>
+                <th className="px-3 sm:px-4 py-3 font-medium hidden sm:table-cell">Copies</th>
+                <th className="px-3 sm:px-4 py-3 font-medium hidden sm:table-cell">Status</th>
                 <th className="px-3 sm:px-4 py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
@@ -167,7 +167,7 @@ export function BooksPage() {
                 const avail = availableCopies(b, s.assignments);
                 return (
                   <tr key={b.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-3 sm:px-4 py-3">
+                    <td className={`px-3 sm:px-4 py-3 ${hasCovers ? "hidden sm:table-cell" : "hidden"}`}>
                       <div className="h-12 w-9 rounded-md bg-muted overflow-hidden flex items-center justify-center text-muted-foreground border">
                         {b.coverUrl ? (
                           <img src={b.coverUrl} alt={b.title} className="h-full w-full object-cover" />
@@ -176,7 +176,7 @@ export function BooksPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-3 sm:px-4 py-3">
+                    <td className="px-3 sm:px-4 py-3 w-full max-w-0 sm:w-auto sm:max-w-none">
                       <div className="flex items-center gap-2">
                         <div className="min-w-0">
                           <p className="font-medium truncate">{b.title}</p>
@@ -186,6 +186,7 @@ export function BooksPage() {
                           </p>
                           {b.status === "pending" && <p className="text-xs text-amber-600 dark:text-amber-400">Waiting for admin approval</p>}
                           {b.status === "rejected" && <p className="text-xs text-destructive">Declined{b.rejectedReason ? `: ${b.rejectedReason}` : ""}. Edit it to send it again.</p>}
+                          {(!b.status || b.status === "approved") && <p className="sm:hidden text-xs text-muted-foreground">{avail}/{b.copies} available</p>}
                         </div>
                         {b.issues.length > 0 && (
                           <AlertCircle className="h-3.5 w-3.5 text-destructive shrink-0" aria-label={`${b.issues.length} issue(s)`} />
@@ -194,27 +195,27 @@ export function BooksPage() {
                     </td>
                     <td className="px-3 sm:px-4 py-3 hidden md:table-cell text-muted-foreground">{b.category}</td>
                     <td className="px-3 sm:px-4 py-3 hidden lg:table-cell text-muted-foreground">{b.department}</td>
-                    <td className="px-3 sm:px-4 py-3 text-muted-foreground">
+                    <td className="px-3 sm:px-4 py-3 text-muted-foreground hidden sm:table-cell">
                       <span className="tabular-nums">{avail}/{b.copies}</span>
                     </td>
-                    <td className="px-3 sm:px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${avail > 0 ? "bg-accent/20 text-accent-foreground" : "bg-muted text-muted-foreground"}`}>
-                        {avail > 0 ? "Available" : "All out"}
+                    <td className="px-3 sm:px-4 py-3 hidden sm:table-cell">
+                      <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${b.status === "pending" ? "bg-amber-500/10 text-amber-700 dark:text-amber-400" : b.status === "rejected" ? "bg-destructive/10 text-destructive" : avail > 0 ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
+                        {b.status === "pending" ? "Pending" : b.status === "rejected" ? "Declined" : avail > 0 ? "Available" : "All out"}
                       </span>
                     </td>
                     <td className="px-3 sm:px-4 py-3 text-right">
                       <div className="inline-flex gap-1">
-                        <Button size="sm" variant="ghost" className="relative" aria-label="Reviews" onClick={() => setReviewsFor(b)}>
+                        <Button size="sm" variant="ghost" className="relative h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3" aria-label="Reviews" title="Reviews" onClick={() => setReviewsFor(b)}>
                           <MessageSquareText className="h-4 w-4" />
                           {s.reviews.some((r) => r.bookId === b.id && r.status === "approved") && (
                             <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] leading-4 text-center">{s.reviews.filter((r) => r.bookId === b.id && r.status === "approved").length}</span>
                           )}
                         </Button>
-                        <Button size="sm" variant="ghost" disabled={avail === 0 || b.status === "pending" || b.status === "rejected"} onClick={() => { setAssignFor(b); setAssignKid(""); setKidQuery(""); setAssignDue(""); }}>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3" title="Give to a kid" aria-label="Give to a kid" disabled={avail === 0 || b.status === "pending" || b.status === "rejected"} onClick={() => { setAssignFor(b); setAssignKid(""); setKidQuery(""); setAssignDue(""); }}>
                           <BookPlus className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => openEdit(b)}><Pencil className="h-4 w-4" /></Button>
-                        <Button size="sm" variant="ghost" onClick={() => api.deleteBook(b.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3" title="Edit" aria-label="Edit" onClick={() => openEdit(b)}><Pencil className="h-4 w-4" /></Button>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3" title="Delete" aria-label="Delete" onClick={() => { if (window.confirm(`Delete "${b.title}"? Its loans are deleted too.`)) api.deleteBook(b.id); }}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                       </div>
                     </td>
                   </tr>
@@ -233,7 +234,6 @@ export function BooksPage() {
           <DialogHeader>
             <DialogTitle>{editing ? "Edit Book" : "Add a Book"}</DialogTitle>
           </DialogHeader>
-          {!editing && !isAdmin && <p className="text-sm text-muted-foreground -mt-1">New books are checked by the admin before they can be given out.</p>}
           <div className="grid gap-3">
             <div>
               <Label className="mb-1.5 block">Cover image</Label>
@@ -429,7 +429,7 @@ export function BooksPage() {
                 );
               })}
             </div>
-            <p className="text-xs text-muted-foreground">Items currently used by a book, kid, or teacher cannot be deleted.</p>
+            
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setManageOpen(null)}>Done</Button>

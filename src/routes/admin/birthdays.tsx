@@ -30,7 +30,7 @@ function Birthdays() {
 
   return (
     <>
-      <PageHeader title="Birthdays" subtitle="Send wishes to parents on WhatsApp." />
+      <PageHeader title="Birthdays" />
       <Panel
         title={monthName}
         action={
@@ -53,7 +53,7 @@ function Birthdays() {
                 <li key={kid.id} className={`py-3 flex items-center gap-3 ${isToday ? "bg-pink-500/10 -mx-4 px-4 sm:-mx-6 sm:px-6" : ""}`}>
                   <div className="h-11 w-11 shrink-0 rounded-lg bg-pink-500/15 text-pink-700 dark:text-pink-300 flex items-center justify-center text-base font-semibold">{day}</div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium truncate">{kid.name}{isToday ? " 🎂" : ""}</p>
+                    <p className="text-sm font-medium truncate">{kid.name}{isToday ? " (today)" : ""}</p>
                     <p className="text-xs text-muted-foreground truncate">{turning > 0 ? `Turning ${turning}` : "Birthday"} · {kid.department}</p>
                   </div>
                   {link ? (

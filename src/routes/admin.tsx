@@ -10,7 +10,7 @@ import { MemberSync } from "@/components/admin/MemberSync";
 import { Button } from "@/components/ui/button";
 import { useAdmin } from "@/hooks/use-admin";
 import { friendlyError } from "@/lib/friendly-error";
-import logo from "@/assets/logo.png";
+import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
@@ -20,7 +20,7 @@ function Centered({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 bg-background gap-6" style={{ paddingTop: "max(2rem, env(safe-area-inset-top))" }}>
       <div className="flex items-center gap-3">
-        <img src={logo} width={44} height={44} alt="" className="rounded-lg" />
+        <Logo size={44} />
         <div className="leading-tight">
           <p className="font-display font-semibold">Book Club Admin</p>
           <p className="text-xs text-muted-foreground">Madina Central SDA Church</p>

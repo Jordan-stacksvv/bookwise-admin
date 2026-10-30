@@ -63,7 +63,7 @@ function ClassReading() {
 
   return (
     <>
-      <PageHeader title="Class reading" subtitle="Set a book for a whole class to read. Teachers see it on their dashboard." />
+      <PageHeader title="Class reading" />
 
       <Panel title="Set a book for a class" className="mb-6">
         <div className="grid sm:grid-cols-2 gap-4">

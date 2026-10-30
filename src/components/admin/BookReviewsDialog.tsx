@@ -23,10 +23,10 @@ export function BookReviewsDialog({ book, onClose }: { book: Book | null; onClos
       <DialogContent className="max-w-xl max-h-[90dvh] overflow-y-auto w-[calc(100%-1.5rem)] sm:w-full">
         <DialogHeader>
           <DialogTitle className="break-words">Reviews: {book?.title}</DialogTitle>
-          <DialogDescription>{rows.length === 0 ? "Nothing published yet." : `${rows.length} approved review${rows.length === 1 ? "" : "s"}.`}</DialogDescription>
+          <DialogDescription>{rows.length > 0 ? `${rows.length} review${rows.length === 1 ? "" : "s"}` : null}</DialogDescription>
         </DialogHeader>
         {rows.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-6 text-center">When a teacher adds a review and the admin approves it, it shows up here.</p>
+          <p className="text-sm text-muted-foreground py-6 text-center">No reviews yet.</p>
         ) : (
           <div className="space-y-3">
             {rows.map(({ r, kid }) => (

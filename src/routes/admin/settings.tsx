@@ -23,7 +23,7 @@ export const Route = createFileRoute("/admin/settings")({
 function SettingsPage() {
   return (
     <>
-      <PageHeader title="Settings" subtitle="Policy text, damage fee and admin app options." />
+      <PageHeader title="Settings" />
       <div className="space-y-6">
         <PolicyPanel />
         <PricesPanel />

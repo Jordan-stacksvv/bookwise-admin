@@ -3,14 +3,14 @@ import { useQuery } from "convex/react";
 import { Clock, ShieldOff } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 import { api } from "../../../convex/_generated/api";
-import logo from "@/assets/logo.png";
+import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 
 function Screen({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 bg-background gap-6" style={{ paddingTop: "max(2rem, env(safe-area-inset-top))" }}>
       <div className="flex items-center gap-3">
-        <img src={logo} width={44} height={44} alt="" className="rounded-lg" />
+        <Logo size={44} />
         <div className="leading-tight">
           <p className="font-display font-semibold">Madina Central</p>
           <p className="text-xs text-muted-foreground">SDA Church Book Club</p>

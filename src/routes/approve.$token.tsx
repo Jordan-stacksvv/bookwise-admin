@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "convex/react";
 import { BookOpen, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { api } from "../../convex/_generated/api";
-import logo from "@/assets/logo.png";
+import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -29,7 +29,7 @@ function ApprovePage() {
     <div className="min-h-screen bg-background px-4 py-6 sm:py-10" style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}>
       <div className="mx-auto w-full max-w-lg">
         <div className="flex items-center gap-3 mb-5">
-          <img src={logo} width={40} height={40} alt="" className="rounded-md" />
+          <Logo size={40} />
           <div className="leading-tight">
             <p className="font-display font-semibold">Madina Central</p>
             <p className="text-xs text-muted-foreground">SDA Book Club</p>

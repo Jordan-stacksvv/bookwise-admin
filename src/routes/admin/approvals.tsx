@@ -88,7 +88,7 @@ function Approvals() {
 
   return (
     <>
-      <PageHeader title="Approvals" subtitle="Final approval before a book is handed over." />
+      <PageHeader title="Approvals" />
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mb-4">
         <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:inline-flex">
           <TabsTrigger value="admin">To approve ({rows.admin.length})</TabsTrigger>
@@ -151,7 +151,7 @@ function Approvals() {
         <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Decline this loan?</DialogTitle>
-            <DialogDescription>The copy goes back on the shelf. You can add a reason for the teacher.</DialogDescription>
+            <DialogDescription>The copy goes back on the shelf.</DialogDescription>
           </DialogHeader>
           <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason (optional)" maxLength={200} />
           <DialogFooter className="flex-col gap-2 sm:flex-row">

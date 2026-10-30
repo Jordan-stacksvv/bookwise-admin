@@ -22,7 +22,7 @@ export function AdminNotices() {
     <div className="bg-card rounded-xl border p-4 sm:p-6 mb-6" style={{ boxShadow: "var(--shadow-soft)" }}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h3 className="font-display text-lg font-semibold flex items-center gap-2">
-          <Megaphone className="h-5 w-5 text-accent-foreground" /> From the admin
+          <Megaphone className="h-5 w-5 text-primary" /> From the admin
         </h3>
         <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
           {["all", ...s.departments].map((c) => (
@@ -61,7 +61,7 @@ export function AdminNotices() {
                 <li key={r._id} className="text-sm flex flex-wrap items-baseline gap-x-2">
                   <Badge variant="secondary">{r.department}</Badge>
                   <span className="font-medium break-words">{book?.title ?? "Book removed"}</span>
-                  {r.dueDate && <span className="text-xs text-muted-foreground">by {new Date(r.dueDate).toLocaleDateString()}</span>}
+                  {r.dueDate && <span className="text-xs text-muted-foreground">by {new Date(r.dueDate).toLocaleDateString(undefined, { day: "numeric", month: "short" })}</span>}
                   {r.note && <span className="text-xs text-muted-foreground w-full">{r.note}</span>}
                 </li>
               );

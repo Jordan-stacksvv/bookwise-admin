@@ -31,7 +31,7 @@ function ReviewsPage() {
 
   return (
     <>
-      <PageHeader title="Book reviews" subtitle="Reviews the admin has approved are shown here and can be shared. Add new ones from a kid's page." />
+      <PageHeader title="Book reviews" />
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mb-4">
         <TabsList className="w-full sm:w-auto grid grid-cols-2 sm:inline-flex">
           <TabsTrigger value="published">Published ({rows.published.length})</TabsTrigger>

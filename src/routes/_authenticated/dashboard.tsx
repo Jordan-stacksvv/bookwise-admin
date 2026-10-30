@@ -13,30 +13,15 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
 });
 
-const MORNING = ["Good morning", "Rise and shine", "A blessed morning", "Bright morning"];
-const AFTERNOON = ["Good afternoon", "Hope your day's going well", "Afternoon blessings"];
-const EVENING = ["Good evening", "Calm evening", "Evening blessings"];
-const NIGHT = ["Working late?", "Quiet night", "Good night"];
-
-function pickGreeting() {
-  const h = new Date().getHours();
-  const list = h < 5 ? NIGHT : h < 12 ? MORNING : h < 17 ? AFTERNOON : h < 22 ? EVENING : NIGHT;
-  // rotate by day so it's not random on every render
-  const day = Math.floor(Date.now() / 86400000);
-  return list[day % list.length];
-}
-
 function Dashboard() {
   const s = useStore();
   const api = useApi();
   const [q, setQ] = useState("");
   const [reviewFor, setReviewFor] = useState<ReviewTarget | null>(null);
-  const [greeting, setGreeting] = useState(pickGreeting);
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
     const id = setInterval(() => {
-      setGreeting(pickGreeting());
       setNow(new Date());
     }, 60_000);
     return () => clearInterval(id);
@@ -107,23 +92,16 @@ function Dashboard() {
   const dueToday = s.assignments.filter(
     (a) => !a.returnedAt && new Date(a.dueDate).toDateString() === now.toDateString(),
   ).length;
-  const subtitle =
-    overdue > 0
-      ? `${overdue} book${overdue === 1 ? "" : "s"} overdue${dueToday ? ` · ${dueToday} due today` : ""}.`
-      : dueToday > 0
-        ? `${dueToday} book${dueToday === 1 ? "" : "s"} due today.`
-        : "Everything is on track today.";
-
-  const timeLabel = now.toLocaleString(undefined, {
-    weekday: "long", month: "long", day: "numeric",
-    hour: "numeric", minute: "2-digit",
-  });
-
+  const timeLabel = [
+    now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }),
+    overdue > 0 && `${overdue} overdue`,
+    dueToday > 0 && `${dueToday} due today`,
+  ].filter(Boolean).join(" · ");
   return (
     <div>
       <PageHeader
-        title={`${greeting}!`}
-        subtitle={`${timeLabel} · ${subtitle}`}
+        title="Dashboard"
+        subtitle={timeLabel}
         actions={
           <>
             <Button asChild variant="outline"><Link to="/books"><Plus className="h-4 w-4 mr-1.5" /> Add Book</Link></Button>
@@ -165,21 +143,11 @@ function Dashboard() {
           <Link
             key={st.label}
             to={st.to}
-            className="bg-card rounded-xl p-4 sm:p-5 border hover:border-primary/40 transition-colors"
+            className="bg-card rounded-xl p-4 border hover:border-primary/40 transition-colors last:col-span-2 sm:last:col-span-1"
             style={{ boxShadow: "var(--shadow-soft)" }}
           >
-            <div className="flex items-center justify-between mb-2 sm:mb-3">
-              <p className="text-xs sm:text-sm text-muted-foreground">{st.label}</p>
-              <div className={`h-8 w-8 sm:h-9 sm:w-9 rounded-lg flex items-center justify-center ${
-                st.tone === "accent" ? "bg-accent/20 text-accent-foreground" :
-                st.tone === "destructive" ? "bg-destructive/10 text-destructive" :
-                "bg-primary/10 text-primary"
-              }`}>
-                <st.icon className="h-4 w-4" />
-              </div>
-            </div>
-            <p className="text-2xl sm:text-3xl font-display font-semibold">{st.value}</p>
-          </Link>
+            <p className="text-xs sm:text-sm text-muted-foreground">{st.label}</p>
+            <p className={`mt-1 text-2xl sm:text-3xl font-semibold tabular-nums ${st.tone === "destructive" && st.value > 0 ? "text-destructive" : ""}`}>{st.value}</p>          </Link>
         ))}
       </div>
 
@@ -209,7 +177,7 @@ function Dashboard() {
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 shrink-0">
-                    <span className={`text-xs px-2.5 py-1 rounded-full ${od ? "bg-destructive/10 text-destructive" : "bg-accent/20 text-accent-foreground"}`}>
+                    <span className={`text-xs px-2.5 py-1 rounded-full ${od ? "bg-destructive/10 text-destructive" : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"}`}>
                       {od ? "Overdue" : "Active"}
                     </span>
                     {loanStatus(a) === "approved" && (
@@ -240,7 +208,7 @@ function Dashboard() {
                     <span className="text-muted-foreground">{count}</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
+                    <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );
@@ -262,7 +230,7 @@ function Dashboard() {
                     <span className="text-xs font-semibold text-muted-foreground w-4">{i + 1}</span>
                     <p className="text-sm font-medium truncate">{book!.title}</p>
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-accent/20 text-accent-foreground shrink-0">{count}×</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">{count}×</span>
                 </div>
               ))}
             </div>
@@ -284,7 +252,7 @@ function Dashboard() {
                       <p className="text-xs text-muted-foreground truncate">{kid!.department}</p>
                     </div>
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-accent/20 text-accent-foreground shrink-0">{count} book{count === 1 ? "" : "s"}</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">{count} book{count === 1 ? "" : "s"}</span>
                 </div>
               ))}
             </div>

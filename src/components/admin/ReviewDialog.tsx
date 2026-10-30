@@ -49,7 +49,7 @@ function ReviewForm({ target, onClose }: { target: ReviewTarget; onClose: () => 
       <div className="py-6 text-center space-y-3">
         <CheckCircle2 className="h-10 w-10 text-emerald-500 mx-auto" />
         <DialogTitle>Review sent</DialogTitle>
-        <DialogDescription>The admin will check it. Once approved, it shows under the book for everyone to read.</DialogDescription>
+        <DialogDescription>The admin will review it before it is published.</DialogDescription>
         <Button onClick={onClose} className="w-full sm:w-auto">Done</Button>
       </div>
     );
@@ -88,7 +88,7 @@ function ReviewForm({ target, onClose }: { target: ReviewTarget; onClose: () => 
               <ImagePlus className="h-4 w-4 mr-2" /> Upload or take a photo
             </Button>
           )}
-          <p className="text-xs text-muted-foreground mt-1.5">The admin checks every review before it is published. Make sure the photo does not show the child's full name.</p>
+          <p className="text-xs text-muted-foreground mt-1.5">The admin checks reviews before they are published. Avoid full names in photos.</p>
         </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
       </div>

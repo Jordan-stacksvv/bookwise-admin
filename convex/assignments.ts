@@ -30,6 +30,8 @@ export const assign = mutation({
     const book = await ctx.db.get(args.bookId);
     if (!book) throw new ConvexError("Book not found.");
     if (book.status === "pending" || book.status === "rejected") throw new ConvexError("This book is waiting for the admin's approval, so it cannot be given out yet.");
+    const out = (await ctx.db.query("assignments").withIndex("by_book", (q) => q.eq("bookId", args.bookId)).collect()).filter((a) => !a.returnedAt).length;
+    if (out >= book.copies) throw new ConvexError("No copy of this book is free right now.");
     // New loans wait for the parent (link sent by WhatsApp), then for the admin.
     const token = newToken();
     const id = await ctx.db.insert("assignments", {

@@ -7,7 +7,7 @@ import { api } from "../../../convex/_generated/api";
 import { ChargeFeeDialog, type ChargeTarget } from "@/components/admin-app/ChargeFeeDialog";
 import { Empty, Panel, Stat, daysBetween, fmtDate } from "@/components/admin-app/ui";
 import { BirthdayCard } from "@/components/admin/BirthdayCard";
-import { PeopleWaiting } from "@/components/admin-app/PeopleWaiting";
+import { NeedsAttention } from "@/components/admin-app/NeedsAttention";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Button } from "@/components/ui/button";
 import { whatsappLink } from "@/lib/approval-link";
@@ -91,7 +91,6 @@ function Overview() {
     <>
       <PageHeader
         title="Overview"
-        subtitle="What is being read, what is missing, and what needs you."
         actions={
           <div className="inline-flex rounded-lg border bg-card p-1">
             {RANGES.map((r) => (
@@ -114,19 +113,7 @@ function Overview() {
         <Stat label={`Loans (${RANGES.find((r) => r.v === range)!.label.toLowerCase()})`} value={d.loansInRange} hint={`${s.books.length} titles in the library`} />
       </div>
 
-      {d.waitingAdmin > 0 && (
-        <Link to="/admin/approvals" className="block mb-6 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm font-medium hover:bg-amber-500/15 transition">
-          {d.waitingAdmin} loan{d.waitingAdmin === 1 ? " is" : "s are"} waiting for your final approval →
-        </Link>
-      )}
-
-      {s.reviews.filter((r) => r.status === "pending").length > 0 && (
-        <Link to="/admin/reviews" className="block mb-6 rounded-xl border border-sky-500/40 bg-sky-500/10 p-4 text-sm font-medium hover:bg-sky-500/15 transition">
-          {s.reviews.filter((r) => r.status === "pending").length} book review(s) waiting for your approval →
-        </Link>
-      )}
-
-      <PeopleWaiting />
+      <NeedsAttention loans={d.waitingAdmin} />
 
       <BirthdayCard kids={s.kids} />
 
@@ -180,7 +167,7 @@ function Overview() {
 
       <Panel title={`Overdue / missing (${d.overdue.length})`} className="mb-6">
         {d.overdue.length === 0 ? (
-          <Empty>Nothing overdue. 🎉</Empty>
+          <Empty>Nothing overdue.</Empty>
         ) : (
           <ul className="divide-y">
             {d.overdue.slice(0, 25).map(({ a, kid, book, days }) => {

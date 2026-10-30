@@ -23,6 +23,7 @@ import { Route as AdminReadingRouteImport } from './routes/admin/reading'
 import { Route as AdminProfileRouteImport } from './routes/admin/profile'
 import { Route as AdminPeopleRouteImport } from './routes/admin/people'
 import { Route as AdminKidsRouteImport } from './routes/admin/kids'
+import { Route as AdminImportRouteImport } from './routes/admin/import'
 import { Route as AdminFeesRouteImport } from './routes/admin/fees'
 import { Route as AdminBooksRouteImport } from './routes/admin/books'
 import { Route as AdminBirthdaysRouteImport } from './routes/admin/birthdays'
@@ -106,6 +107,11 @@ const AdminPeopleRoute = AdminPeopleRouteImport.update({
 const AdminKidsRoute = AdminKidsRouteImport.update({
   id: '/kids',
   path: '/kids',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminImportRoute = AdminImportRouteImport.update({
+  id: '/import',
+  path: '/import',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminFeesRoute = AdminFeesRouteImport.update({
@@ -204,6 +210,7 @@ export interface FileRoutesByFullPath {
   '/admin/birthdays': typeof AdminBirthdaysRoute
   '/admin/books': typeof AdminBooksRoute
   '/admin/fees': typeof AdminFeesRoute
+  '/admin/import': typeof AdminImportRoute
   '/admin/kids': typeof AdminKidsRoute
   '/admin/people': typeof AdminPeopleRoute
   '/admin/profile': typeof AdminProfileRoute
@@ -233,6 +240,7 @@ export interface FileRoutesByTo {
   '/admin/birthdays': typeof AdminBirthdaysRoute
   '/admin/books': typeof AdminBooksRoute
   '/admin/fees': typeof AdminFeesRoute
+  '/admin/import': typeof AdminImportRoute
   '/admin/kids': typeof AdminKidsRoute
   '/admin/people': typeof AdminPeopleRoute
   '/admin/profile': typeof AdminProfileRoute
@@ -265,6 +273,7 @@ export interface FileRoutesById {
   '/admin/birthdays': typeof AdminBirthdaysRoute
   '/admin/books': typeof AdminBooksRoute
   '/admin/fees': typeof AdminFeesRoute
+  '/admin/import': typeof AdminImportRoute
   '/admin/kids': typeof AdminKidsRoute
   '/admin/people': typeof AdminPeopleRoute
   '/admin/profile': typeof AdminProfileRoute
@@ -297,6 +306,7 @@ export interface FileRouteTypes {
     | '/admin/birthdays'
     | '/admin/books'
     | '/admin/fees'
+    | '/admin/import'
     | '/admin/kids'
     | '/admin/people'
     | '/admin/profile'
@@ -326,6 +336,7 @@ export interface FileRouteTypes {
     | '/admin/birthdays'
     | '/admin/books'
     | '/admin/fees'
+    | '/admin/import'
     | '/admin/kids'
     | '/admin/people'
     | '/admin/profile'
@@ -357,6 +368,7 @@ export interface FileRouteTypes {
     | '/admin/birthdays'
     | '/admin/books'
     | '/admin/fees'
+    | '/admin/import'
     | '/admin/kids'
     | '/admin/people'
     | '/admin/profile'
@@ -476,6 +488,13 @@ declare module '@tanstack/react-router' {
       path: '/kids'
       fullPath: '/admin/kids'
       preLoaderRoute: typeof AdminKidsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/import': {
+      id: '/admin/import'
+      path: '/import'
+      fullPath: '/admin/import'
+      preLoaderRoute: typeof AdminImportRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/fees': {
@@ -621,6 +640,7 @@ interface AdminRouteChildren {
   AdminBirthdaysRoute: typeof AdminBirthdaysRoute
   AdminBooksRoute: typeof AdminBooksRoute
   AdminFeesRoute: typeof AdminFeesRoute
+  AdminImportRoute: typeof AdminImportRoute
   AdminKidsRoute: typeof AdminKidsRoute
   AdminPeopleRoute: typeof AdminPeopleRoute
   AdminProfileRoute: typeof AdminProfileRoute
@@ -638,6 +658,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminBirthdaysRoute: AdminBirthdaysRoute,
   AdminBooksRoute: AdminBooksRoute,
   AdminFeesRoute: AdminFeesRoute,
+  AdminImportRoute: AdminImportRoute,
   AdminKidsRoute: AdminKidsRoute,
   AdminPeopleRoute: AdminPeopleRoute,
   AdminProfileRoute: AdminProfileRoute,

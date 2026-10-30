@@ -64,7 +64,7 @@ function Fees() {
 
   return (
     <>
-      <PageHeader title="Fees" subtitle="Lost and damaged books. WhatsApp is still sent by hand." />
+      <PageHeader title="Fees" />
 
       <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
         <Stat label="Owed" value={`${currency} ${total("owed")}`} tone={total("owed") ? "warn" : "default"} />
@@ -87,7 +87,6 @@ function Fees() {
           </div>
           <Button disabled={!pick} onClick={startDamage}>Charge fee</Button>
         </div>
-        <p className="text-xs text-muted-foreground mt-3">To mark a book <b>lost</b>, use "Mark lost" on the Overview page (overdue list).</p>
       </Panel>
 
       <Panel title={`Fee ledger (${rows.length})`}>

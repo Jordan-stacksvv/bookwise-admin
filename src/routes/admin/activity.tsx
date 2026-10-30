@@ -68,7 +68,7 @@ function Activity() {
 
   return (
     <>
-      <PageHeader title="Activity" subtitle="A record of what teachers, parents and admins did, with the time. Newest first." />
+      <PageHeader title="Activity" />
 
       <ExportPanel filters={filters} />
 
@@ -130,7 +130,7 @@ function Activity() {
               </div>
             )}
             {data.hasMore && limit >= 2000 && (
-              <p className="pt-4 text-xs text-muted-foreground text-center">More lines exist. Narrow the dates, or use Export for up to 5,000.</p>
+              <p className="pt-4 text-xs text-muted-foreground text-center">Showing the latest 2,000. Narrow the dates to see more.</p>
             )}
           </>
         )}

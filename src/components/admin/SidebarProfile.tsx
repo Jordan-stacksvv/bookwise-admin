@@ -57,7 +57,7 @@ export function SidebarProfile({ app, onNavigate }: { app: "teacher" | "admin"; 
               <Download className="h-4 w-4 mr-2" /> Install {app === "admin" ? "admin " : ""}app
             </DropdownMenuItem>
           )}
-          {showIosHint && <p className="px-2 py-2 text-xs text-muted-foreground">To install: tap Share, then Add to Home Screen.</p>}
+          {showIosHint && <p className="px-2 py-2 text-xs text-muted-foreground">Tap Share, then Add to Home Screen.</p>}
           {app === "admin" && (
             <DropdownMenuItem asChild className="py-2.5 cursor-pointer">
               <a href="/dashboard">

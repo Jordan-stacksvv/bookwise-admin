@@ -147,7 +147,7 @@ export function ExportPanel({ filters }: { filters: ActivityFilters }) {
           </div>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground mt-3">These files contain children's full names and parents' phone numbers. Keep them private.</p>
+      <p className="text-xs text-muted-foreground mt-3">Contains children's names and parents' phone numbers.</p>
     </Panel>
   );
 }

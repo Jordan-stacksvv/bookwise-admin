@@ -80,7 +80,6 @@ export function TeachersPage() {
     <div>
       <PageHeader
         title="Teachers"
-        subtitle="Department leaders and class teachers in the book club."
         actions={
           <Button onClick={openNew}>
             <Plus className="h-4 w-4 mr-1.5" /> Add Teacher
@@ -118,7 +117,7 @@ export function TeachersPage() {
                     style={{ boxShadow: "var(--shadow-soft)" }}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="h-10 w-10 rounded-full bg-accent/30 text-accent-foreground flex items-center justify-center font-display font-semibold">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-semibold">
                         {t.name
                           .split(" ")
                           .map((n) => n[0])

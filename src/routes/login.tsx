@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { SignIn, SignUp, useAuth, useClerk, useUser } from "@clerk/clerk-react";
 import { ArrowLeft, BookOpen, GraduationCap, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
-import logo from "@/assets/logo.png";
+import { Logo } from "@/components/Logo";
 import { AppFooter } from "@/components/admin/AppFooter";
 
 type Role = "teacher" | "admin";
@@ -35,14 +35,14 @@ const clerkAppearance = {
     colorBackground: "#ffffff",
     colorInputBackground: "#ffffff",
     fontFamily: '"Inter", system-ui, sans-serif',
-    borderRadius: "0.75rem",
+    borderRadius: "0.5rem",
   },
   elements: {
     rootBox: { width: "100%" },
     card: { boxShadow: "none", border: "none", background: "transparent", padding: 0, width: "100%" },
     cardBox: { boxShadow: "none", border: "none", width: "100%" },
     header: { display: "none" },
-    socialButtonsBlockButton: { height: "2.9rem", border: "1px solid #e4dfd2", boxShadow: "none" },
+    socialButtonsBlockButton: { height: "2.9rem", border: "1px solid #e2e8f0", boxShadow: "none" },
     formFieldInput: { height: "2.9rem", boxShadow: "none" },
     formButtonPrimary: { height: "2.9rem", boxShadow: "none", textTransform: "none", fontSize: "0.9rem" },
     footer: { background: "transparent" },
@@ -54,13 +54,13 @@ function RoleCard({ icon: Icon, title, text, onClick }: { icon: typeof BookOpen;
   return (
     <button
       onClick={onClick}
-      className="group w-full text-left flex items-center gap-4 rounded-2xl border bg-card p-4 sm:p-5 transition hover:border-primary hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group w-full text-left flex items-center gap-4 rounded-xl border bg-card p-4 transition hover:border-primary/60 hover:bg-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <span className="h-12 w-12 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition">
-        <Icon className="h-6 w-6" />
+      <span className="h-10 w-10 shrink-0 rounded-lg bg-primary/10 text-primary flex items-center justify-center transition">
+        <Icon className="h-5 w-5" />
       </span>
       <span className="min-w-0">
-        <span className="block font-display text-lg font-semibold">{title}</span>
+        <span className="block text-base font-semibold">{title}</span>
         <span className="block text-sm text-muted-foreground">{text}</span>
       </span>
     </button>
@@ -96,11 +96,10 @@ function LoginPage() {
       <div className="w-full max-w-md space-y-5">
         <div>
           <h1 className="font-display text-2xl sm:text-3xl font-semibold">{isSignedIn ? `Welcome back${user?.firstName ? ", " + user.firstName : ""}` : "Who are you?"}</h1>
-          <p className="text-sm text-muted-foreground mt-1">Choose how you want to use the book club.</p>
         </div>
         <div className="space-y-3">
-          <RoleCard icon={GraduationCap} title="I'm a teacher" text="Assign books, track reading and manage kids." onClick={() => choose("teacher")} />
-          <RoleCard icon={ShieldCheck} title="I'm an admin" text="Approvals, analytics, announcements and fees." onClick={() => choose("admin")} />
+          <RoleCard icon={GraduationCap} title="I'm a teacher" text="Books, kids and reviews" onClick={() => choose("teacher")} />
+          <RoleCard icon={ShieldCheck} title="I'm an admin" text="Approvals, reports and settings" onClick={() => choose("admin")} />
         </div>
         {isSignedIn && (
           <button className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-2" onClick={() => signOut().then(() => window.location.assign("/login"))}>
@@ -122,7 +121,7 @@ function LoginPage() {
           </p>
           <h1 className="font-display text-2xl sm:text-3xl font-semibold mt-3">{mode === "signin" ? "Welcome back" : "Create your account"}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {mode === "signin" ? "Sign in to continue." : role === "admin" ? "An existing admin will approve your access." : "It only takes a minute."}
+            {mode === "signin" ? "Sign in to continue." : "An admin approves new accounts."}
           </p>
         </div>
 
@@ -143,31 +142,16 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-background">
-      <div className="hidden lg:flex flex-col justify-between p-12 text-sidebar-foreground" style={{ background: "var(--gradient-hero)" }}>
-        <div className="flex items-center gap-3">
-          <img src={logo} width={48} height={48} className="rounded-lg bg-white/95 p-1.5" alt="SDA logo" />
-          <div>
-            <p className="font-display text-lg font-semibold">Madina Central</p>
-            <p className="text-sm opacity-75">SDA Church Book Club</p>
-          </div>
+    <div className="min-h-screen flex flex-col bg-background" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+      <header className="px-6 pt-6 flex items-center gap-3">
+        <Logo size={36} />
+        <div className="leading-tight">
+          <p className="text-sm font-semibold">Madina Central</p>
+          <p className="text-xs text-muted-foreground">SDA Book Club</p>
         </div>
-        <div className="space-y-4 max-w-md">
-          <BookOpen className="h-10 w-10 opacity-80" />
-          <h2 className="font-display text-4xl leading-tight">Nurturing young minds, one chapter at a time.</h2>
-          <p className="opacity-80 text-sm leading-relaxed">Track every book, every reader and every return, from one simple place built for the church library.</p>
-        </div>
-        <p className="text-xs opacity-60">© {new Date().getFullYear()} Madina Central SDA Church</p>
-      </div>
-
-      <div className="flex flex-col min-h-screen" style={{ paddingTop: "env(safe-area-inset-top)" }}>
-        <div className="lg:hidden flex items-center gap-3 px-6 pt-6">
-          <img src={logo} width={40} height={40} alt="SDA" className="rounded-md" />
-          <p className="font-display font-semibold">Madina Central Book Club</p>
-        </div>
-        <div className="flex-1 flex items-center justify-center px-6 py-8">{body}</div>
-        <AppFooter />
-      </div>
+      </header>
+      <main className="flex-1 flex items-center justify-center px-6 py-8">{body}</main>
+      <AppFooter />
     </div>
   );
 }

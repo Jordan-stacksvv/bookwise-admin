@@ -32,12 +32,12 @@ export function BirthdayCard({ kids }: { kids: Kid[] }) {
 
   return (
     <div className="bg-card rounded-xl border p-4 sm:p-6 mb-6" style={{ boxShadow: "var(--shadow-soft)" }}>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-display text-lg font-semibold flex items-center gap-2">
-          <Cake className="h-5 w-5 text-pink-500" /> Birthdays in {monthName}
-          <span className="text-xs font-normal text-muted-foreground">({all.length})</span>
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <h3 className="text-base font-semibold flex items-center gap-2 min-w-0">
+          <Cake className="h-4 w-4 text-muted-foreground shrink-0" /> Birthdays in {monthName}
+          <span className="text-xs font-normal text-muted-foreground whitespace-nowrap">({all.length})</span>
         </h3>
-        <Link to="/calendar" className="text-sm text-muted-foreground hover:text-foreground">Calendar →</Link>
+        <Link to="/calendar" className="text-sm text-muted-foreground hover:text-foreground shrink-0 whitespace-nowrap">Calendar →</Link>
       </div>
 
       {all.length === 0 ? (

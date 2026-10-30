@@ -128,7 +128,7 @@ export function ProfileCard({ app }: { app: "teacher" | "admin" }) {
             <Download className="h-4 w-4 mr-2" /> Install {app === "admin" ? "admin " : ""}app
           </Button>
         )}
-        {showIosHint && <p className="text-xs text-muted-foreground">To install: tap Share, then Add to Home Screen.</p>}
+        {showIosHint && <p className="text-xs text-muted-foreground">Tap Share, then Add to Home Screen.</p>}
         <Button
           variant="ghost"
           className="justify-start text-destructive hover:text-destructive"

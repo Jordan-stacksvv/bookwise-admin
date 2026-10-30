@@ -56,7 +56,7 @@ function ApprovalsPage() {
 
   return (
     <>
-      <PageHeader title="Loan approvals" subtitle="Each loan needs the parent's approval, then the admin's final approval." />
+      <PageHeader title="Loan approvals" />
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mb-4">
         <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:inline-flex">
           <TabsTrigger value="parent">Parent ({rows.parent.length})</TabsTrigger>

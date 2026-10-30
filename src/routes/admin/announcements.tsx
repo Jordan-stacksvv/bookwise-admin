@@ -53,7 +53,7 @@ function Announcements() {
 
   return (
     <>
-      <PageHeader title="Announcements" subtitle="Shown on every teacher's dashboard. Pick the classes it is for." />
+      <PageHeader title="Announcements" />
 
       <Panel title="New announcement" className="mb-6">
         <div className="space-y-4">

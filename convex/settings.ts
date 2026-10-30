@@ -2,7 +2,7 @@ import { mutation, query } from "./secure";
 import { v } from "convex/values";
 import { logEvent } from "./activity";
 
-const DEFAULTS = {
+export const DEFAULTS = {
   categories: ["Spiritual", "Bible Stories", "Stories", "Allegory", "Devotional", "History"],
   departments: ["Beginners", "Primary", "Juniors", "Earliteens", "Youth"],
   ageRanges: ["3-5", "4-7", "6-10", "8-12", "10-14", "12-16", "14-18"],

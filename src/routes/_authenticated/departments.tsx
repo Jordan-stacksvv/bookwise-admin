@@ -38,7 +38,6 @@ function DepartmentsPage() {
     <div>
       <PageHeader
         title="Departments"
-        subtitle="Manage departments used across books, kids, and teachers."
       />
 
       <div className="bg-card border rounded-xl p-3 sm:p-4 mb-4 flex flex-col sm:flex-row gap-3" style={{ boxShadow: "var(--shadow-soft)" }}>

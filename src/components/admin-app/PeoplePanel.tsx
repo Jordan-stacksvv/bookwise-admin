@@ -104,7 +104,6 @@ function ApproveTeacherDialog({ member, onClose }: { member: Member | null; onCl
                 <SelectTrigger><SelectValue placeholder="No class yet" /></SelectTrigger>
                 <SelectContent><SelectItem value="none">No class yet (assign later)</SelectItem>{s.departments.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground mt-1.5">They can sign in and use the app now. Give them a class later on the Teachers page.</p>
             </div>
             <div>
               <Label className="mb-1.5 block">Phone (optional)</Label>

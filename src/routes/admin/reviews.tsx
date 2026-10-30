@@ -85,7 +85,7 @@ function AdminReviews() {
 
   return (
     <>
-      <PageHeader title="Reviews" subtitle="Approve a review to publish it. Published reviews get a public link anyone can open." />
+      <PageHeader title="Reviews" />
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mb-4">
         <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:inline-flex">
           <TabsTrigger value="pending">To approve ({rows.pending.length})</TabsTrigger>
@@ -160,7 +160,7 @@ function AdminReviews() {
         <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Decline or take down?</DialogTitle>
-            <DialogDescription>It will not be public. A published link stops working. Add a reason for the teacher (optional).</DialogDescription>
+            <DialogDescription>Add a reason for the teacher (optional).</DialogDescription>
           </DialogHeader>
           <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason (optional)" maxLength={200} />
           <DialogFooter className="flex-col gap-2 sm:flex-row">
